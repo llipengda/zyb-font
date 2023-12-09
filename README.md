@@ -1,5 +1,11 @@
 # zyb-font -- 生成你的手写字体
 
+## 前提
+
+- `Python` 3.11.*
+**注意：3.12不行**
+- `CUDA` 12.1
+
 ## 部署
 
 创建 `Python` 虚拟环境
@@ -12,7 +18,7 @@ python3 -m venv venv
 
 - Windows
 
-```pwsh
+```bash
 python -m venv venv
 ```
 
@@ -26,13 +32,13 @@ source venv/bin/activate
 
 - Windows(PowerShell)
 
-```pwsh
+```bash
 .\venv\Scripts\activate.ps1
 ```
 
 - Windows(CMD)
 
-```cmd
+```bash
 .\venv\Scripts\activate.bat
 ```
 

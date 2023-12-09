@@ -1,4 +1,5 @@
--i https://download.pytorch.org/whl/cu121
-matplotlib
-torch
-torchvision
+-f https://download.pytorch.org/whl/torch_stable.html
+
+matplotlib>=3.8.2
+torch==2.1.1+cu121 ; python_version < "3.12" and python_version >= "3.11"
+torchvision==0.16.1+cu121 ; python_version < "3.12" and python_version >= "3.11"
