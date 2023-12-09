@@ -2,11 +2,34 @@
 
 ## 前提
 
-- `Python` 3.11.*
-**注意：3.12不行**
+- `Python` `>= 3.11.4 && < 3.12`
 - `CUDA` 12.1
 
 ## 部署
+
+你可以使用脚本自动部署，也可以手动部署。
+
+### 使用脚本
+
+- Linux
+
+```bash
+./init.sh
+```
+
+- Windows(CMD)
+
+```bash
+.\init.bat
+```
+
+- Windows(PowerShell)
+
+```bash
+.\init.ps1
+```
+
+### 手动部署
 
 创建 `Python` 虚拟环境
 
