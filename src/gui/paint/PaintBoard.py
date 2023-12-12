@@ -33,7 +33,7 @@ class PaintBoard(QWidget):
 
         self.__painter = QPainter()  # 新建绘图工具
 
-        self.__thickness = 10  # 默认画笔粗细为10px
+        self.__thickness = 25  # 默认画笔粗细为25px
         self.__penColor = QColor("black")  # 设置默认画笔颜色为黑色
 
     def __init_view(self):
@@ -46,7 +46,7 @@ class PaintBoard(QWidget):
         self.update()
         self.__is_empty = True
 
-    def change_pen_thickness(self, thickness=10):
+    def change_pen_thickness(self, thickness=25):
         # 改变画笔粗细
         self.__thickness = thickness
 
