@@ -1,5 +1,7 @@
 -f https://download.pytorch.org/whl/torch_stable.html
 
 matplotlib~=3.8.2
-torch~=2.1.1+cu121
-torchvision~=0.16.1+cu121
+torch==2.1.1+cu121
+torchvision==0.16.1+cu121
+PyQt5~=5.15.10
+PyQt5-stubs~=5.15.6.0
