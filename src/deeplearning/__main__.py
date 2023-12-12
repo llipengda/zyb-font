@@ -1,3 +1,4 @@
+import os
 import torch
 import torchvision
 import torch.nn.functional as f
@@ -9,6 +10,8 @@ from torch.utils.data import DataLoader
 
 from deeplearning.Module import Module
 
+
+is_main = __name__ == "__main__"
 
 n_epochs = 3
 batch_size_train = 64
@@ -94,8 +97,10 @@ def train(epoch):
             train_losses.append(loss.item())
             train_counter.append((batch_idx * 64) +
                                  ((epoch - 1) * len(train_loader.dataset)))
-            torch.save(network.state_dict(), './model.pth')
-            torch.save(optimizer.state_dict(), './optimizer.pth')
+            if not os.path.exists('out'):
+                os.mkdir('out')
+            torch.save(network.state_dict(), 'out/model.pth')
+            torch.save(optimizer.state_dict(), 'out/optimizer.pth')
 
 
 def test():
@@ -135,13 +140,14 @@ def main():
         train(epoch)
         test()
 
-    plt.figure()
-    plt.plot(train_counter, train_losses, color='blue')
-    plt.scatter(test_counter, test_losses, color='red')
-    plt.legend(['Train Loss', 'Test Loss'], loc='upper right')
-    plt.xlabel('number of training examples seen')
-    plt.ylabel('negative log likelihood loss')
-    plt.show()
+    if is_main:
+        plt.figure()
+        plt.plot(train_counter, train_losses, color='blue')
+        plt.scatter(test_counter, test_losses, color='red')
+        plt.legend(['Train Loss', 'Test Loss'], loc='upper right')
+        plt.xlabel('number of training examples seen')
+        plt.ylabel('negative log likelihood loss')
+        plt.show()
 
     examples = enumerate(test_loader)
     _, (example_data, example_targets) = next(examples)
@@ -154,25 +160,27 @@ def main():
         device), example_targets.to(device)
     with torch.no_grad():
         output = network(example_data)
-    plt.figure()
-    for i in range(6):
-        plt.subplot(2, 3, i + 1)
-        plt.tight_layout()
-        img = example_data[i][0].cpu().numpy()
-        plt.imshow(img, cmap='gray', interpolation='none')
-        plt.title("Prediction: {}".format(
-            output.data.max(1, keepdim=True)[1][i].item()))
-        plt.xticks([])
-        plt.yticks([])
-    plt.show()
+        
+    if is_main:
+        plt.figure()
+        for i in range(6):
+            plt.subplot(2, 3, i + 1)
+            plt.tight_layout()
+            img = example_data[i][0].cpu().numpy()
+            plt.imshow(img, cmap='gray', interpolation='none')
+            plt.title("Prediction: {}".format(
+                output.data.max(1, keepdim=True)[1][i].item()))
+            plt.xticks([])
+            plt.yticks([])
+        plt.show()
 
     continued_network = Module()
     continued_optimizer = optim.SGD(
         network.parameters(), lr=learning_rate, momentum=momentum)
 
-    network_state_dict: dict[str, Any] = torch.load('model.pth')
+    network_state_dict: dict[str, Any] = torch.load('out/model.pth')
     continued_network.load_state_dict(network_state_dict)
-    optimizer_state_dict: dict[str, Any] = torch.load('optimizer.pth')
+    optimizer_state_dict: dict[str, Any] = torch.load('out/optimizer.pth')
     continued_optimizer.load_state_dict(optimizer_state_dict)
 
     for i in range(4, 9):
@@ -180,12 +188,13 @@ def main():
         train(i)
         test()
 
-    plt.plot(train_counter, train_losses, color='blue')
-    plt.scatter(test_counter, test_losses, color='red')
-    plt.legend(['Train Loss', 'Test Loss'], loc='upper right')
-    plt.xlabel('number of training examples seen')
-    plt.ylabel('negative log likelihood loss')
-    plt.show()
+    if is_main:
+        plt.plot(train_counter, train_losses, color='blue')
+        plt.scatter(test_counter, test_losses, color='red')
+        plt.legend(['Train Loss', 'Test Loss'], loc='upper right')
+        plt.xlabel('number of training examples seen')
+        plt.ylabel('negative log likelihood loss')
+        plt.show()
 
 
 if __name__ == "__main__":
