@@ -1,12 +1,14 @@
 import torch
 import torchvision
-import torch.nn as nn
 import torch.nn.functional as f
 import torch.optim as optim
 import matplotlib.pyplot as plt
 
 from typing import Any
 from torch.utils.data import DataLoader
+
+from deeplearning.Module import Module
+
 
 n_epochs = 3
 batch_size_train = 64
@@ -51,30 +53,10 @@ test_loader = DataLoader(
 assert isinstance(train_loader.dataset, torchvision.datasets.MNIST)
 assert isinstance(test_loader.dataset, torchvision.datasets.MNIST)
 
-
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
-        self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
-        self.conv2_drop = nn.Dropout2d()
-        self.fc1 = nn.Linear(320, 50)
-        self.fc2 = nn.Linear(50, 10)
-
-    def forward(self, x):
-        x = f.relu(f.max_pool2d(self.conv1(x), 2))
-        x = f.relu(f.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
-        x = x.view(-1, 320)
-        x = f.relu(self.fc1(x))
-        x = f.dropout(x, training=self.training)
-        xx: torch.Tensor = self.fc2(x)
-        return f.log_softmax(xx, dim=1)
-
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using device:", device)
 
-network = Net().to(device)
+network = Module().to(device)
 optimizer = optim.SGD(network.parameters(),
                       lr=learning_rate, momentum=momentum)
 
@@ -88,13 +70,13 @@ def train(epoch):
     # for type hint
     assert isinstance(train_loader.dataset, torchvision.datasets.MNIST)
     assert isinstance(test_loader.dataset, torchvision.datasets.MNIST)
-    
+
     network.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data: torch.Tensor
         target: torch.Tensor
         output: torch.Tensor
-        
+
         data, target = data.to(device), target.to(device)
         output = network(data)
         optimizer.zero_grad()
@@ -120,7 +102,7 @@ def test():
     # for type hint
     assert isinstance(train_loader.dataset, torchvision.datasets.MNIST)
     assert isinstance(test_loader.dataset, torchvision.datasets.MNIST)
-    
+
     network.eval()
     test_loss = 0
     correct = 0
@@ -159,6 +141,7 @@ def main():
     plt.legend(['Train Loss', 'Test Loss'], loc='upper right')
     plt.xlabel('number of training examples seen')
     plt.ylabel('negative log likelihood loss')
+    plt.show()
 
     examples = enumerate(test_loader)
     _, (example_data, example_targets) = next(examples)
@@ -183,7 +166,7 @@ def main():
         plt.yticks([])
     plt.show()
 
-    continued_network = Net()
+    continued_network = Module()
     continued_optimizer = optim.SGD(
         network.parameters(), lr=learning_rate, momentum=momentum)
 
@@ -205,4 +188,5 @@ def main():
     plt.show()
 
 
-main()
+if __name__ == "__main__":
+    main()
