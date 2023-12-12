@@ -183,3 +183,5 @@ class Train:
                 plt.xticks([])
                 plt.yticks([])
             plt.show()
+            
+        print("Train - Done\n")

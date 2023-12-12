@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QPushButton, \
     QSplitter, QLabel, QSpinBox, QWidget, QCheckBox
 
 from gui.paint.PaintBoard import PaintBoard
-from deeplearning import pridict
+from deeplearning import predict
 
 
 # noinspection PyUnresolvedReferences
@@ -21,7 +21,6 @@ class Widget(QWidget):
         self.__paint_board = PaintBoard(self)
 
     def __init_view(self):
-
         self.setFixedSize(800, 800)
         self.setWindowTitle("画板")
         main_layout = QHBoxLayout(self)
@@ -61,9 +60,9 @@ class Widget(QWidget):
         self.__checkbox_eraser.clicked.connect(self.on_btn_eraser_clicked)
         sub_layout.addWidget(self.__checkbox_eraser)
 
-        self.__label_pridict = QLabel(self)
-        self.__label_pridict.setText("")
-        sub_layout.addWidget(self.__label_pridict)
+        self.__label_predict = QLabel(self)
+        self.__label_predict.setText("")
+        sub_layout.addWidget(self.__label_predict)
 
         splitter = QSplitter(self)  # 占位符
         sub_layout.addWidget(splitter)
@@ -102,8 +101,8 @@ class Widget(QWidget):
             os.mkdir("./draw")
         image.save(path)
 
-        res = pridict(path)
-        self.__label_pridict.setText(f"预测：{res}")
-        os.rename(path, f"./draw/pridict_{res}_{name}.jpg")
+        res = predict(path)
+        self.__label_predict.setText(f"预测：{res}")
+        os.rename(path, f"./draw/predict_{res}_{name}.jpg")
 
         self.__paint_board.clear()
