@@ -2,3 +2,5 @@
 *.pth
 /venv/
 /.venv/
+/draw/
+__pycache__/
