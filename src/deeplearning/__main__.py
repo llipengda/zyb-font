@@ -22,7 +22,7 @@ torch.manual_seed(random_seed)
 train_loader = DataLoader(
     torchvision
     .datasets
-    .MNIST('./data/',
+    .MNIST('data/',
            train=True,
            download=True,
            transform=torchvision.transforms.Compose([
@@ -37,7 +37,7 @@ train_loader = DataLoader(
 test_loader = DataLoader(
     torchvision
     .datasets
-    .MNIST('./data/',
+    .MNIST('data/',
            train=False,
            download=True,
            transform=torchvision.transforms.Compose([
