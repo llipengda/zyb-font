@@ -1,9 +1,13 @@
+from os import system
 import torch
 import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import matplotlib.pyplot as plt
+
+from typing import Any, Dict, cast
+from torch.utils.data import DataLoader
 
 n_epochs = 3
 batch_size_train = 64
@@ -14,27 +18,42 @@ log_interval = 10
 random_seed = 1
 torch.manual_seed(random_seed)
 
-train_loader = torch.utils.data.DataLoader(
-    torchvision.datasets.MNIST('./data/', train=True, download=True,
-                               transform=torchvision.transforms.Compose([
-                                   torchvision.transforms.ToTensor(),
-                                   torchvision.transforms.Normalize(
-                                       (0.1307,), (0.3081,))
-                               ])),
-    batch_size=batch_size_train, shuffle=True)
-test_loader = torch.utils.data.DataLoader(
-    torchvision.datasets.MNIST('./data/', train=False, download=True,
-                               transform=torchvision.transforms.Compose([
-                                   torchvision.transforms.ToTensor(),
-                                   torchvision.transforms.Normalize(
-                                       (0.1307,), (0.3081,))
-                               ])),
-    batch_size=batch_size_test, shuffle=True)
+train_loader = DataLoader(
+    torchvision
+    .datasets
+    .MNIST('./data/',
+           train=True,
+           download=True,
+           transform=torchvision.transforms.Compose([
+               torchvision.transforms.ToTensor(),
+               torchvision.transforms.Normalize(
+                   (0.1307,), (0.3081,))
+           ])),
+    batch_size=batch_size_train,
+    shuffle=True
+)
+
+test_loader = DataLoader(
+    torchvision
+    .datasets
+    .MNIST('./data/',
+           train=False,
+           download=True,
+           transform=torchvision.transforms.Compose([
+               torchvision.transforms.ToTensor(),
+               torchvision.transforms.Normalize(
+                   (0.1307,), (0.3081,))
+           ])),
+    batch_size=batch_size_test,
+    shuffle=True
+)
+
+# for type hint
+assert isinstance(train_loader.dataset, torchvision.datasets.MNIST)
+assert isinstance(test_loader.dataset, torchvision.datasets.MNIST)
 
 examples = enumerate(test_loader)
 batch_idx, (example_data, example_targets) = next(examples)
-# print(example_targets)
-# print(example_data.shape)
 
 fig = plt.figure()
 for i in range(6):
@@ -62,8 +81,8 @@ class Net(nn.Module):
         x = x.view(-1, 320)
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
-        x = self.fc2(x)
-        return F.log_softmax(x, dim=1)
+        input: torch.Tensor = self.fc2(x)
+        return F.log_softmax(input, dim=1)
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -73,24 +92,33 @@ network = Net().to(device)
 optimizer = optim.SGD(network.parameters(),
                       lr=learning_rate, momentum=momentum)
 
-train_losses = []
-train_counter = []
-test_losses = []
+train_losses: list[float] = []
+train_counter: list[int] = []
+test_losses: list[float] = []
 test_counter = [i * len(train_loader.dataset) for i in range(n_epochs + 1)]
 
 
 def train(epoch):
+    # for type hint
+    assert isinstance(train_loader.dataset, torchvision.datasets.MNIST)
+    assert isinstance(test_loader.dataset, torchvision.datasets.MNIST)
+    
     network.train()
     for batch_idx, (data, target) in enumerate(train_loader):
+        data: torch.Tensor
+        target: torch.Tensor
+        output: torch.Tensor
+        
         data, target = data.to(device), target.to(device)
-        optimizer.zero_grad()
         output = network(data)
+        optimizer.zero_grad()
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
         if batch_idx % log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'
-                  .format(epoch, batch_idx * len(data),
+                  .format(epoch,
+                          batch_idx * len(data),
                           len(train_loader.dataset),
                           100. * batch_idx /
                           len(train_loader),
@@ -103,11 +131,18 @@ def train(epoch):
 
 
 def test():
+    # for type hint
+    assert isinstance(train_loader.dataset, torchvision.datasets.MNIST)
+    assert isinstance(test_loader.dataset, torchvision.datasets.MNIST)
+    
     network.eval()
     test_loss = 0
     correct = 0
     with torch.no_grad():
         for data, target in test_loader:
+            data: torch.Tensor
+            target: torch.Tensor
+            output: torch.Tensor
             data, target = data.to(device), target.to(device)
             output = network(data)
             test_loss += F.nll_loss(output, target, reduction='sum').item()
@@ -122,11 +157,11 @@ def test():
 
 train(1)
 
-test()  # 不加这个，后面画图就会报错：x and y must be the same size
+test()
+
 for epoch in range(1, n_epochs + 1):
     train(epoch)
     test()
-
 
 fig = plt.figure()
 plt.plot(train_counter, train_losses, color='blue')
@@ -135,9 +170,13 @@ plt.legend(['Train Loss', 'Test Loss'], loc='upper right')
 plt.xlabel('number of training examples seen')
 plt.ylabel('negative log likelihood loss')
 
-
 examples = enumerate(test_loader)
 batch_idx, (example_data, example_targets) = next(examples)
+
+example_data: torch.Tensor
+example_targets: torch.Tensor
+output: torch.Tensor
+
 example_data, example_targets = example_data.to(
     device), example_targets.to(device)
 with torch.no_grad():
@@ -154,16 +193,15 @@ for i in range(6):
     plt.yticks([])
 plt.show()
 
-
 # ----------------------------------------------------------- #
 
 continued_network = Net()
 continued_optimizer = optim.SGD(
     network.parameters(), lr=learning_rate, momentum=momentum)
 
-network_state_dict = torch.load('model.pth')
+network_state_dict: Dict[str, Any] = torch.load('model.pth')
 continued_network.load_state_dict(network_state_dict)
-optimizer_state_dict = torch.load('optimizer.pth')
+optimizer_state_dict: Dict[str, Any] = torch.load('optimizer.pth')
 continued_optimizer.load_state_dict(optimizer_state_dict)
 
 # 注意不要注释前面的“for epoch in range(1, n_epochs + 1):”部分，
@@ -174,7 +212,6 @@ for i in range(4, 9):
     train(i)
     test()
 
-fig = plt.figure()
 plt.plot(train_counter, train_losses, color='blue')
 plt.scatter(test_counter, test_losses, color='red')
 plt.legend(['Train Loss', 'Test Loss'], loc='upper right')
