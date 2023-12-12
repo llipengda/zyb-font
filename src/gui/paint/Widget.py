@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QPushButton, \
     QSplitter, QLabel, QSpinBox, QWidget, QCheckBox
 
 from gui.paint.PaintBoard import PaintBoard
+from deeplearning import pridict
 
 
 # noinspection PyUnresolvedReferences
@@ -50,7 +51,7 @@ class Widget(QWidget):
         self.__btn_quit.clicked.connect(self.quit)
         sub_layout.addWidget(self.__btn_quit)
 
-        self.__btn_save = QPushButton("保存")
+        self.__btn_save = QPushButton("预测并保存")
         self.__btn_save.setParent(self)
         self.__btn_save.clicked.connect(self.on_btn_save_clicked)
         sub_layout.addWidget(self.__btn_save)
@@ -59,6 +60,10 @@ class Widget(QWidget):
         self.__checkbox_eraser.setParent(self)
         self.__checkbox_eraser.clicked.connect(self.on_btn_eraser_clicked)
         sub_layout.addWidget(self.__checkbox_eraser)
+
+        self.__label_pridict = QLabel(self)
+        self.__label_pridict.setText("")
+        sub_layout.addWidget(self.__label_pridict)
 
         splitter = QSplitter(self)  # 占位符
         sub_layout.addWidget(splitter)
@@ -69,9 +74,9 @@ class Widget(QWidget):
         sub_layout.addWidget(self.__label_pen_thickness)
 
         self.__spin_box_pen_thickness = QSpinBox(self)
-        self.__spin_box_pen_thickness.setMaximum(20)
-        self.__spin_box_pen_thickness.setMinimum(2)
-        self.__spin_box_pen_thickness.setValue(10)  # 默认粗细为10
+        self.__spin_box_pen_thickness.setMaximum(100)
+        self.__spin_box_pen_thickness.setMinimum(0)
+        self.__spin_box_pen_thickness.setValue(25)
         self.__spin_box_pen_thickness.setSingleStep(2)  # 最小变化值为2
         self.__spin_box_pen_thickness.valueChanged.connect(
             self.on_pen_thickness_change)  # 关联spinBox值变化信号和函数on_PenThicknessChange
@@ -96,4 +101,9 @@ class Widget(QWidget):
         if not os.path.exists("./draw"):
             os.mkdir("./draw")
         image.save(path)
+
+        res = pridict(path)
+        self.__label_pridict.setText(f"预测：{res}")
+        os.rename(path, f"./draw/pridict_{res}_{name}.jpg")
+
         self.__paint_board.clear()

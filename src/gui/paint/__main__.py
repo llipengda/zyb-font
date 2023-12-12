@@ -1,7 +1,7 @@
+import sys
+
 from gui.paint.Widget import Widget
 from PyQt5.QtWidgets import QApplication
-
-import sys
 
 
 def run():
