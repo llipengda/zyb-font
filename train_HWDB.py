@@ -1,10 +1,10 @@
 import torch
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torchvision
 import matplotlib
+
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
@@ -27,32 +27,34 @@ log_interval = 10
 random_seed = 1
 torch.manual_seed(random_seed)
 
+transform = torchvision.transforms.Compose([
+    torchvision.transforms.Grayscale(),
+    torchvision.transforms.ToTensor(),
+    torchvision.transforms.Normalize(
+        (0.1307,), (0.3081,)
+    )
+])
+
 train_loader = DataLoader(
     torchvision
-    .datasets
-    .MNIST('./data/',
-           train=True,
-           download=True,
-           transform=torchvision.transforms.Compose([
-               torchvision.transforms.ToTensor(),
-               torchvision.transforms.Normalize(
-                   (0.1307,), (0.3081,))
-           ])),
+        .datasets
+        .MNIST('./data/',
+               train=True,
+               download=True,
+               transform=transform
+               ),
     batch_size=batch_size_train,
     shuffle=True
 )
 
 test_loader = DataLoader(
     torchvision
-    .datasets
-    .MNIST('./data/',
-           train=False,
-           download=True,
-           transform=torchvision.transforms.Compose([
-               torchvision.transforms.ToTensor(),
-               torchvision.transforms.Normalize(
-                   (0.1307,), (0.3081,))
-           ])),
+        .datasets
+        .MNIST('./data/',
+               train=False,
+               download=True,
+               transform=transform
+               ),
     batch_size=batch_size_test,
     shuffle=True
 )
