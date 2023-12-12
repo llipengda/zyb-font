@@ -1,5 +1,6 @@
+from os import system
 import torch
-import torch
+import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -8,22 +9,15 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
-from typing import Any, Dict
+from typing import Any, Dict, cast
 from torch.utils.data import DataLoader
 
-# 训练次数
 n_epochs = 3
-# 每次训练的数据量
 batch_size_train = 64
-# 测试数据量
 batch_size_test = 1000
-# 学习率
 learning_rate = 0.01
-# 动量
 momentum = 0.5
-# 日志间隔
 log_interval = 10
-# 随机种子
 random_seed = 1
 torch.manual_seed(random_seed)
 
@@ -111,13 +105,13 @@ def train(epoch):
     # for type hint
     assert isinstance(train_loader.dataset, torchvision.datasets.MNIST)
     assert isinstance(test_loader.dataset, torchvision.datasets.MNIST)
-
+    
     network.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data: torch.Tensor
         target: torch.Tensor
         output: torch.Tensor
-
+        
         data, target = data.to(device), target.to(device)
         output = network(data)
         optimizer.zero_grad()
@@ -143,7 +137,7 @@ def test():
     # for type hint
     assert isinstance(train_loader.dataset, torchvision.datasets.MNIST)
     assert isinstance(test_loader.dataset, torchvision.datasets.MNIST)
-
+    
     network.eval()
     test_loss = 0
     correct = 0
