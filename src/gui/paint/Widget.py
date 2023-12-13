@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QPushButton, \
     QSplitter, QLabel, QSpinBox, QWidget, QCheckBox
 
 from gui.paint.PaintBoard import PaintBoard
-from deeplearning import predict
+from deeplearning.MNIST import predict
 
 
 # noinspection PyUnresolvedReferences

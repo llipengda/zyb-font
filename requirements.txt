@@ -6,3 +6,7 @@ torchvision==0.16.1+cu121
 PyQt5~=5.15.10
 PyQt5-stubs~=5.15.6.0
 Pillow~=10.1.0
+tqdm~=4.66.1
+patool~=2.0.0
+DownloadKit~=1.0.4
+numpy~=1.26.2

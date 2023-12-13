@@ -6,12 +6,12 @@ import torchvision.transforms as transforms
 from typing import Any
 from PIL import Image
 
-from deeplearning.Module import Module
+from deeplearning.MNIST.Module import Module
 
 
 class Predict:
     def __init__(self):
-        if not os.path.exists("out/model.pth"):
+        if not os.path.exists("out/MNIST/model.pth"):
             self.__module = None
             return
 
@@ -19,7 +19,7 @@ class Predict:
         print("Predict - Using device:", device)
         self.__device = device
         module = Module().to(device)
-        module.load_state_dict(torch.load("out/model.pth"))
+        module.load_state_dict(torch.load("out/MNIST/model.pth"))
         module.eval()
         self.__module = module
 

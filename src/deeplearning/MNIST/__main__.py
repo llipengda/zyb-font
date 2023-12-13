@@ -1,9 +1,9 @@
-from deeplearning.Train import Train
+from deeplearning.MNIST.Train import Train
 
 
 def run(epochs=10, show_fig=True):
     train = Train(epochs)
-    train.run(show_fig)
+    train(show_fig)
 
 
 if __name__ == "__main__":

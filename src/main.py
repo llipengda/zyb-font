@@ -9,7 +9,7 @@ root_path = os.path.dirname(src_path)
 os.chdir(root_path)
 
 if __name__ == "__main__":
-    if not os.path.exists("out/model.pth"):
-        deeplearning.train_and_test(10)
+    if not os.path.exists("out/MNIST/model.pth"):
+        deeplearning.MNIST.train_and_test(10)
 
     gui.paint.run()

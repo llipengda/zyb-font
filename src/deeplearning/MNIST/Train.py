@@ -6,8 +6,9 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
-from deeplearning.Module import Module
+from deeplearning.MNIST.Module import Module
 
 
 class Train:
@@ -82,6 +83,9 @@ class Train:
                           torchvision.datasets.MNIST)
 
         self.__module.train()
+
+        bar = tqdm(total=len(self.__train_loader), desc=f'Train {epoch}')
+
         for batch_idx, (data, target) in enumerate(self.__train_loader):
             data: torch.Tensor
             target: torch.Tensor
@@ -93,21 +97,19 @@ class Train:
             loss = f.nll_loss(output, target)
             loss.backward()
             self.__optimizer.step()
+
             if batch_idx % Train.LOG_INTERVAL == 0:
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'
-                      .format(epoch,
-                              batch_idx * len(data),
-                              len(self.__train_loader.dataset),
-                              100. * batch_idx /
-                              len(self.__train_loader),
-                              loss.item()))
+
+                bar.update(Train.LOG_INTERVAL)
+                bar.set_postfix(loss=f'{loss.item():.6f}')
+
                 self.__train_losses.append(loss.item())
                 self.__train_counter.append((batch_idx * 64) +
                                             ((epoch - 1) * len(self.__train_loader.dataset)))
-                if not os.path.exists('out'):
-                    os.mkdir('out')
-                torch.save(self.__module.state_dict(), 'out/model.pth')
-                torch.save(self.__optimizer.state_dict(), 'out/optimizer.pth')
+                os.makedirs('out/MNIST', exist_ok=True)
+                torch.save(self.__module.state_dict(), 'out/MNIST/model.pth')
+                torch.save(self.__optimizer.state_dict(),
+                           'out/MNIST/optimizer.pth')
 
     def test(self):
         # for type hint
@@ -133,11 +135,11 @@ class Train:
                 correct += pred.eq(target.data.view_as(pred)).sum()
         test_loss /= len(self.__test_loader.dataset)
         self.__test_losses.append(test_loss)
-        print('\nTest set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+        print('\n[INFO] Test set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
             test_loss, correct, len(self.__test_loader.dataset),
             100. * correct / len(self.__test_loader.dataset)))
 
-    def run(self, show_fig: bool = True):
+    def __call__(self, show_fig: bool = True):
         # for type hint
         assert isinstance(self.__train_loader.dataset,
                           torchvision.datasets.MNIST)
@@ -183,5 +185,5 @@ class Train:
                 plt.xticks([])
                 plt.yticks([])
             plt.show()
-            
+
         print("Train - Done\n")
