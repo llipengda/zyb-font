@@ -1,4 +1,5 @@
 import os
+import pickle
 import torch
 import torch.nn.functional as f
 import torchvision.transforms as transforms
@@ -6,20 +7,25 @@ import torchvision.transforms as transforms
 from typing import Any
 from PIL import Image
 
-from deeplearning.MNIST.Module import Module
+from deeplearning.HWDB.Module import Module
+from deeplearning.MNIST import predict
 
 
 class Predict:
     def __init__(self):
-        if not os.path.exists("out/MNIST/model.pth"):
+        if not os.path.exists("out/HWDB/model.pth"):
             self.__module = None
             return
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print("Predict - Using device:", device)
         self.__device = device
-        module = Module().to(device)
-        module.load_state_dict(torch.load("out/MNIST/model.pth"))
+
+        with open('data/HWDB/use_char_dict', 'rb') as f:
+            self.__char_dict: dict[str, str] = pickle.load(f)
+
+        module = Module(len(self.__char_dict)).to(device)
+        module.load_state_dict(torch.load("out/HWDB/model.pth"))
         module.eval()
         self.__module = module
 
@@ -29,12 +35,10 @@ class Predict:
 
         assert isinstance(self.__module, Module)
 
-        img = Image.open(pic_url).convert('L')
-        img = img.resize((28, 28))
-        img = img.point(lambda x: 255 - x)
+        img = Image.open(pic_url).convert('RGB')
         transform = transforms.Compose([
+            transforms.Resize((64, 64)),
             transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))
         ])
         img_any: Any = transform(img)
         img_tensor: torch.Tensor = img_any
@@ -45,15 +49,9 @@ class Predict:
                 img.to(self.__device)).to(self.__device)
 
         probabilities = f.softmax(output[0], dim=0)
-        predicted_class = torch.argmax(probabilities).item()
-
-        res_list = [round(x.item(), 4) * 100 for x in probabilities]
-        res_list = [str(x) + '%' for x in res_list]
-        res_map = dict(zip(range(10), res_list))
-
-        print("\n[INFO] 预测概率：")
-        for k, v in res_map.items():
-            print(f"    {k}: {v:.2f}")
+        predicted_num = torch.argmax(probabilities).item()
+        predicted_class = self.__char_dict[f'{predicted_num:05d}']
+        
         print(f"[INFO] 预测结果：{predicted_class}\n")
 
         return predicted_class
