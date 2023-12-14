@@ -23,7 +23,7 @@ class Train:
     BATCH_SIZE_TEST = 2000
     LEARNING_RATE = 0.01
     LOG_INTERVAL = 10
-    NUM_WORKERS = 32
+    NUM_WORKERS = 24
 
     def __init__(self, epochs: int = 10):
         self.__epochs = epochs
@@ -86,8 +86,8 @@ class Train:
 
         total = 0
         correct = 0
-        bar = tqdm(total=len(self.__train_loader) *
-                   Train.BATCH_SIZE_TRAIN, desc=f'Train {epoch}')
+        bar = tqdm(total=len(self.__train_loader) * Train.BATCH_SIZE_TRAIN, 
+                   desc=f'Train {epoch}')
 
         for batch_idx, (data, target) in enumerate(self.__train_loader):
             data: torch.Tensor
@@ -103,9 +103,11 @@ class Train:
             loss.backward()
             self.__optimizer.step()
 
-            if batch_idx % Train.LOG_INTERVAL == 0 or batch_idx == len(self.__train_loader):
-
-                bar.update(Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN)
+            if batch_idx % Train.LOG_INTERVAL == 0:
+                if (minus := (batch_idx // Train.LOG_INTERVAL + 1) * Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN - len(self.__train_loader) * Train.BATCH_SIZE_TRAIN) > 0:
+                    bar.update(Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN - minus)
+                else:
+                    bar.update(Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN)
                 bar.set_postfix(loss=f'{loss.item():.6f}',
                                 correct=f'{(correct / total) * 100.:.6f}%')
 
@@ -123,7 +125,7 @@ class Train:
         bar.set_postfix(loss=f'{avg_loss:.6f}',
                         correct=f'{(correct / total) * 100.:.6f}%')
 
-    def test(self):
+    def test(self, epoch: int):
         # for type hint
         assert isinstance(self.__train_loader.dataset,
                           HWDB)
@@ -131,7 +133,7 @@ class Train:
                           HWDB)
 
         bar = tqdm(total=len(self.__test_loader) *
-                   Train.BATCH_SIZE_TEST, desc=f'Test')
+                   Train.BATCH_SIZE_TEST, desc=f'Test {epoch}')
 
         self.__module.eval()
         total = 0
@@ -159,11 +161,11 @@ class Train:
         assert isinstance(self.__test_loader.dataset,
                           HWDB)
 
-        self.test()
+        self.test(0)
 
         for epoch in range(1, self.__epochs + 1):
             self.train(epoch)
-            self.test()
+            self.test(epoch)
 
         if show_fig:
             plt.figure()
