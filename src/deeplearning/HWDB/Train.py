@@ -101,7 +101,7 @@ class Train:
             loss.backward()
             self.__optimizer.step()
 
-            if batch_idx % Train.LOG_INTERVAL == 0:
+            if batch_idx % Train.LOG_INTERVAL == 0 or batch_idx == len(self.__train_loader):
 
                 bar.update(Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN)
                 bar.set_postfix(loss=f'{loss.item():.6f}',
@@ -117,7 +117,7 @@ class Train:
                            'out/HWDB/optimizer.pth')
 
         avg_loss = sum(self.__train_losses[
-            -len(self.__train_loader):]) / len(self.__train_loader)
+            -len(self.__train_loader) * Train.BATCH_SIZE_TRAIN:]) / len(self.__train_loader)
         bar.set_postfix(loss=f'{avg_loss:.6f}',
                         correct=f'{(correct / total) * 100.:.6f}%')
 
