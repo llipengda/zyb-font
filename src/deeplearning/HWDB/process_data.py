@@ -123,7 +123,3 @@ def load_img_from_gnt():
 
         train_thread.join()
         test_thread.join()
-
-
-if __name__ == "__main__":
-    load_img_from_gnt()

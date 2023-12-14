@@ -194,8 +194,3 @@ class Train:
             plt.savefig('out/HWDB/prediction.png')
 
         print("Train - Done\n")
-
-
-if __name__ == "__main__":
-    train = Train()
-    train()
