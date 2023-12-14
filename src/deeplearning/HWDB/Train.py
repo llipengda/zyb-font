@@ -12,6 +12,10 @@ from tqdm import tqdm
 from deeplearning.HWDB.Module import Module
 from deeplearning.HWDB.HWDB import HWDB
 
+torch.backends.cudnn.enabled = True
+torch.backends.cudnn.benchmark = True
+torch.backends.cudnn.deterministic = True
+
 
 class Train:
     BATCH_SIZE_TRAIN = 100
