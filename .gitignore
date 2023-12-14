@@ -1,6 +1,6 @@
-/data/
+data/
 *.pth
-/venv/
-/.venv/
-/draw/
+venv/
+.venv/
+draw/
 __pycache__/
