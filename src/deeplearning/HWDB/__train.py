@@ -10,6 +10,10 @@ from torchvision import transforms
 from HWDB import HWDB
 from Module import Module
 
+torch.backends.cudnn.enabled = True
+torch.backends.cudnn.benchmark = True
+torch.backends.cudnn.deterministic = True
+
 
 def valid(epoch, net, test_loarder):
     print("epoch %d 开始验证..." % epoch)

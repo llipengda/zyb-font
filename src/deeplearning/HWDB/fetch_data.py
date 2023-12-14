@@ -40,9 +40,12 @@ def download():
 
 def is_unalz_installed():
     paths = os.environ['PATH'].split(os.pathsep)
+    find = False
     for path in paths:
-        return os.path.exists(os.path.join(path, 'unalz.exe')) or os.path.exists(os.path.join(path, 'unalz'))
-    return False
+        if os.path.exists(os.path.join(path, 'unalz.exe')) or os.path.exists(os.path.join(path, 'unalz')):
+            find = True
+            break
+    return find
 
 
 def unzip_alz(file_path: str, output_path: str):
