@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+from matplotlib.font_manager import FontProperties
 
 from deeplearning.HWDB.Module import Module
 from deeplearning.HWDB.HWDB import HWDB
@@ -20,7 +21,7 @@ class Train:
     BATCH_SIZE_TRAIN = 100
     BATCH_SIZE_TEST = 2000
     LEARNING_RATE = 0.01
-    LOG_INTERVAL = 1
+    LOG_INTERVAL = 10
 
     def __init__(self, epochs: int = 10):
         self.__epochs = epochs
@@ -56,12 +57,16 @@ class Train:
         self.__train_loader = DataLoader(
             HWDB('data/HWDB', train=True, transform=transform),
             batch_size=Train.BATCH_SIZE_TRAIN,
+            num_workers=24,
+            pin_memory=True,
             shuffle=True
         )
 
         self.__test_loader = DataLoader(
             HWDB('data/HWDB', train=False, transform=transform),
             batch_size=Train.BATCH_SIZE_TEST,
+            num_workers=24,
+            pin_memory=True,
             shuffle=True
         )
 
@@ -180,6 +185,7 @@ class Train:
             output = self.__module(example_data)
 
         if show_fig:
+            sim_hei = FontProperties(fname="font/SimHei.ttf")
             plt.figure()
             for i in range(6):
                 plt.subplot(2, 3, i + 1)
@@ -187,7 +193,8 @@ class Train:
                 img = example_data[i][0].cpu().numpy()
                 plt.imshow(img, cmap='gray', interpolation='none')
                 plt.title("Prediction: {}".format(
-                    self.__char_dict[str(output.data.max(1, keepdim=True)[1][i].item())]))
+                    self.__char_dict[f'{output.data.max(1, keepdim=True)[1][i].item():05d}']),
+                        fontproperties=sim_hei)
                 plt.xticks([])
                 plt.yticks([])
             plt.show()
