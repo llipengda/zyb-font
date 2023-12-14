@@ -76,7 +76,8 @@ class Train:
 
         total = 0
         correct = 0
-        bar = tqdm(total=len(self.__train_loader), desc=f'Train {epoch}')
+        bar = tqdm(total=len(self.__train_loader) *
+                   Train.BATCH_SIZE_TRAIN, desc=f'Train {epoch}')
 
         for batch_idx, (data, target) in enumerate(self.__train_loader):
             data: torch.Tensor
@@ -94,7 +95,7 @@ class Train:
 
             if batch_idx % Train.LOG_INTERVAL == 0:
 
-                bar.update(Train.LOG_INTERVAL)
+                bar.update(Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN)
                 bar.set_postfix(loss=f'{loss.item():.6f}',
                                 correct=f'{(correct / total) * 100.:.6f}%')
 
@@ -113,7 +114,8 @@ class Train:
         assert isinstance(self.__test_loader.dataset,
                           HWDB)
 
-        bar = tqdm(total=len(self.__test_loader), desc=f'Test')
+        bar = tqdm(total=len(self.__test_loader) *
+                   Train.BATCH_SIZE_TEST, desc=f'Test')
 
         self.__module.eval()
         total = 0
@@ -130,7 +132,7 @@ class Train:
                 _, predicted = output.data.max(1)
                 total += target.size(0)
                 correct += (predicted == target).sum().item()
-                bar.update(1)
+                bar.update(Train.BATCH_SIZE_TEST)
                 bar.set_postfix(
                     correct=f'{correct}/{total}({(correct / total) * 100.:.6f}%)')
 
