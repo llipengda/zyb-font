@@ -187,7 +187,7 @@ class Train:
                 img = example_data[i][0].cpu().numpy()
                 plt.imshow(img, cmap='gray', interpolation='none')
                 plt.title("Prediction: {}".format(
-                    output.data.max(1, keepdim=True)[1][i].item()))
+                    self.__char_dict[str(output.data.max(1, keepdim=True)[1][i].item())]))
                 plt.xticks([])
                 plt.yticks([])
             plt.show()
