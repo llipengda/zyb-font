@@ -3,7 +3,6 @@ import pickle
 import torch
 import torchvision.transforms as transforms
 import torch.nn as nn
-import torch.nn.functional as f
 import matplotlib.pyplot as plt
 
 from torch.utils.data import DataLoader
@@ -19,7 +18,7 @@ torch.backends.cudnn.deterministic = True
 
 class Train:
     BATCH_SIZE_TRAIN = 100
-    BATCH_SIZE_TEST = 100
+    BATCH_SIZE_TEST = 2000
     LEARNING_RATE = 0.01
     LOG_INTERVAL = 1
 
@@ -47,9 +46,6 @@ class Train:
 
         self.__train_losses: list[float] = []
         self.__train_counter: list[int] = []
-        self.__test_losses: list[float] = []
-        self.__test_counter = [i * len(self.__train_loader.dataset)
-                               for i in range(self.__epochs + 1)]
 
     def __load_data(self):
         transform = transforms.Compose([
@@ -107,12 +103,18 @@ class Train:
                                 correct=f'{(correct / total) * 100.:.6f}%')
 
                 self.__train_losses.append(loss.item())
-                self.__train_counter.append((batch_idx * 64) +
+                self.__train_counter.append((batch_idx * self.BATCH_SIZE_TRAIN) +
                                             ((epoch - 1) * len(self.__train_loader.dataset)))
+
                 os.makedirs('out/HWDB', exist_ok=True)
                 torch.save(self.__module.state_dict(), 'out/HWDB/model.pth')
                 torch.save(self.__optimizer.state_dict(),
                            'out/HWDB/optimizer.pth')
+
+        avg_loss = sum(self.__train_losses[
+            -len(self.__train_loader):]) / len(self.__train_loader)
+        bar.set_postfix(loss=f'{avg_loss:.6f}',
+                        correct=f'{(correct / total) * 100.:.6f}%')
 
     def test(self):
         # for type hint
@@ -159,11 +161,11 @@ class Train:
         if show_fig:
             plt.figure()
             plt.plot(self.__train_counter, self.__train_losses, color='blue')
-            plt.scatter(self.__test_counter, self.__test_losses, color='red')
-            plt.legend(['Train Loss', 'Test Loss'], loc='upper right')
+            plt.legend(['Train Loss'], loc='upper right')
             plt.xlabel('number of training examples seen')
             plt.ylabel('negative log likelihood loss')
             plt.show()
+            plt.savefig('out/HWDB/loss.png')
 
         examples = enumerate(self.__test_loader)
         _, (example_data, example_targets) = next(examples)
@@ -189,6 +191,7 @@ class Train:
                 plt.xticks([])
                 plt.yticks([])
             plt.show()
+            plt.savefig('out/HWDB/prediction.png')
 
         print("Train - Done\n")
 
