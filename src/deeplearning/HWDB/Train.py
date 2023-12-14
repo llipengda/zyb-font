@@ -36,6 +36,13 @@ class Train:
             self.__module.parameters(), lr=Train.LEARNING_RATE)
         self.__criterion = nn.CrossEntropyLoss()
 
+        if os.path.exists('out/HWDB/model.pth'):
+            self.__module.load_state_dict(torch.load('out/HWDB/model.pth'))
+
+        if os.path.exists('out/HWDB/optimizer.pth'):
+            self.__optimizer.load_state_dict(
+                torch.load('out/HWDB/optimizer.pth'))
+
         assert isinstance(self.__train_loader.dataset, HWDB)
 
         self.__train_losses: list[float] = []
