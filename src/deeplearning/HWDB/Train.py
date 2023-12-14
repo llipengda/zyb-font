@@ -14,8 +14,8 @@ from deeplearning.HWDB.HWDB import HWDB
 
 
 class Train:
-    BATCH_SIZE_TRAIN = 1000
-    BATCH_SIZE_TEST = 1000
+    BATCH_SIZE_TRAIN = 100
+    BATCH_SIZE_TEST = 100
     LEARNING_RATE = 0.01
     LOG_INTERVAL = 1
 
