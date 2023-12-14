@@ -1,5 +1,5 @@
+import math
 import torch
-import numpy as np
 import torch.nn as nn
 import torch.nn.functional as f
 
@@ -30,7 +30,7 @@ def layer_init(m):
     # 使用isinstance来判断m属于什么类型
     if isinstance(m, nn.Conv2d):
         n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-        m.weight.data.normal_(0, np.sqrt(2. / n))
+        m.weight.data.normal_(0, math.sqrt(2. / n))
     elif isinstance(m, nn.BatchNorm2d):
         # m中的weight，bias其实都是Variable，为了能学习参数以及后向传播
         m.weight.data.fill_(1)

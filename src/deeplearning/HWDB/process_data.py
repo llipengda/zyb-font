@@ -23,11 +23,11 @@ def read_from_gnt_dir(gnt_dir: str):
                 'uint8'), count=header_size)
             if not header.size:
                 break
-            sample_size: np.uint8 = header[0] + \
+            sample_size: int = header[0] + \
                 (header[1] << 8) + (header[2] << 16) + (header[3] << 24)
-            _label: np.uint8 = header[5] + (header[4] << 8)
-            width: np.uint8 = header[6] + (header[7] << 8)
-            height: np.uint8 = header[8] + (header[9] << 8)
+            _label: int = header[5] + (header[4] << 8)
+            width: int = header[6] + (header[7] << 8)
+            height: int = header[8] + (header[9] << 8)
             if header_size + width * height != sample_size:
                 break
             _image = np.fromfile(file, dtype=np.dtype(
@@ -43,7 +43,7 @@ def read_from_gnt_dir(gnt_dir: str):
 
 
 def gnt_to_img(gnt_dir: str, img_dir: str, char_dict: dict[str, str]):
-    def save_img(_label: np.uint8, _image: np.ndarray[Any, np.dtype[np.uint8]], _counter: int):
+    def save_img(_label: int, _image: np.ndarray[Any, np.dtype[np.uint8]], _counter: int):
         decoded_label = struct.pack('>H', _label).decode('gb2312')
         img = Image.fromarray(_image)
         dir_name = os.path.join(img_dir, char_dict[str(decoded_label)])

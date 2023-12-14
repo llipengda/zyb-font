@@ -17,7 +17,7 @@ class Train:
     BATCH_SIZE_TRAIN = 1000
     BATCH_SIZE_TEST = 1000
     LEARNING_RATE = 0.01
-    LOG_INTERVAL = 10
+    LOG_INTERVAL = 1
 
     def __init__(self, epochs: int = 10):
         self.__epochs = epochs
@@ -90,8 +90,8 @@ class Train:
             if batch_idx % Train.LOG_INTERVAL == 0:
 
                 bar.update(Train.LOG_INTERVAL)
-                bar.set_postfix(loss=f'{loss.item():.6f}%',
-                                correct=f'{(correct / total):.6f}')
+                bar.set_postfix(loss=f'{loss.item():.6f}',
+                                correct=f'{(correct / total) * 100.:.6f}%')
 
                 self.__train_losses.append(loss.item())
                 self.__train_counter.append((batch_idx * 64) +
@@ -107,7 +107,7 @@ class Train:
                           HWDB)
         assert isinstance(self.__test_loader.dataset,
                           HWDB)
-        
+
         bar = tqdm(total=len(self.__test_loader), desc=f'Test')
 
         self.__module.eval()
@@ -126,10 +126,8 @@ class Train:
                 total += target.size(0)
                 correct += (predicted == target).sum().item()
                 bar.update(1)
-                bar.set_postfix(correct=f'{correct}/{total}')
-
-        print('\n[INFO] Test set: Accuracy: {}/{} ({:.0f}%)\n'.format(
-            correct, total, 100. * correct / total))
+                bar.set_postfix(
+                    correct=f'{correct}/{total}({(correct / total) * 100.:.6f}%)')
 
     def __call__(self, show_fig: bool = True):
         # for type hint
