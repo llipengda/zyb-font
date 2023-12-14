@@ -4,3 +4,4 @@ venv/
 .venv/
 draw/
 __pycache__/
+out/
