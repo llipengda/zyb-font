@@ -79,6 +79,7 @@ class Train:
             target: torch.Tensor
             output: torch.Tensor
 
+            self.__optimizer.zero_grad()
             data, target = data.to(self.__device), target.to(self.__device)
             output = self.__module(data)
             loss: torch.Tensor = self.__criterion(output, target)
