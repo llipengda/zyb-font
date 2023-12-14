@@ -98,7 +98,3 @@ def fetch_data():
 
     download()
     unzip()
-
-
-if __name__ == "__main__":
-    fetch_data()
