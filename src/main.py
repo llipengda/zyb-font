@@ -12,4 +12,4 @@ if __name__ == "__main__":
     if not os.path.exists("out/MNIST/model.pth"):
         deeplearning.MNIST.train_and_test(10)
 
-    gui.paint.run()
+    gui.paint.run('MNIST')

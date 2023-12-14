@@ -1,19 +1,20 @@
 import os
 import uuid
 
+from typing import Callable
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QPushButton, \
     QSplitter, QLabel, QSpinBox, QWidget, QCheckBox
 
 from gui.paint.PaintBoard import PaintBoard
-from deeplearning.MNIST import predict
 
 
 # noinspection PyUnresolvedReferences
 class Widget(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, pridict: Callable, parent=None):
         super().__init__(parent=parent)
 
+        self.__predict = pridict
         self.__init_data()
         self.__init_view()
 
@@ -101,7 +102,7 @@ class Widget(QWidget):
             os.mkdir("./draw")
         image.save(path)
 
-        res = predict(path)
+        res = self.__predict(path)
         self.__label_predict.setText(f"预测：{res}")
         os.rename(path, f"./draw/predict_{res}_{name}.jpg")
 

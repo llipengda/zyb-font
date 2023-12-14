@@ -14,7 +14,7 @@ from deeplearning.HWDB.HWDB import HWDB
 
 
 class Train:
-    BATCH_SIZE_TRAIN = 64
+    BATCH_SIZE_TRAIN = 1000
     BATCH_SIZE_TEST = 1000
     LEARNING_RATE = 0.01
     LOG_INTERVAL = 10
@@ -30,6 +30,7 @@ class Train:
         self.__module = Module(len(self.__char_dict)).to(self.__device)
         self.__optimizer = torch.optim.SGD(
             self.__module.parameters(), lr=Train.LEARNING_RATE)
+        self.__criterion = nn.CrossEntropyLoss()
 
         assert isinstance(self.__train_loader.dataset, HWDB)
 
@@ -43,7 +44,6 @@ class Train:
         transform = transforms.Compose([
             transforms.Resize((64, 64)),
             transforms.ToTensor(),
-            transforms.Normalize((0.5,), (0.5,))
         ])
 
         self.__train_loader = DataLoader(
@@ -70,6 +70,8 @@ class Train:
 
         self.__module.train()
 
+        total = 0
+        correct = 0
         bar = tqdm(total=len(self.__train_loader), desc=f'Train {epoch}')
 
         for batch_idx, (data, target) in enumerate(self.__train_loader):
@@ -79,15 +81,17 @@ class Train:
 
             data, target = data.to(self.__device), target.to(self.__device)
             output = self.__module(data)
-            self.__optimizer.zero_grad()
-            loss = nn.CrossEntropyLoss()(output, target)
+            loss: torch.Tensor = self.__criterion(output, target)
+            total += target.size(0)
+            correct += (output.argmax(1) == target).sum().item()
             loss.backward()
             self.__optimizer.step()
 
             if batch_idx % Train.LOG_INTERVAL == 0:
 
                 bar.update(Train.LOG_INTERVAL)
-                bar.set_postfix(loss=f'{loss.item():.6f}')
+                bar.set_postfix(loss=f'{loss.item():.6f}%',
+                                correct=f'{(correct / total):.6f}')
 
                 self.__train_losses.append(loss.item())
                 self.__train_counter.append((batch_idx * 64) +
@@ -103,9 +107,11 @@ class Train:
                           HWDB)
         assert isinstance(self.__test_loader.dataset,
                           HWDB)
+        
+        bar = tqdm(total=len(self.__test_loader), desc=f'Test')
 
         self.__module.eval()
-        test_loss = 0
+        total = 0
         correct = 0
         with torch.no_grad():
             for data, target in self.__test_loader:
@@ -116,14 +122,14 @@ class Train:
                     self.__device), target.to(self.__device)
                 output = self.__module(data)
                 output = output.to(self.__device)
-                test_loss += nn.CrossEntropyLoss()(output, target).item()
-                pred = output.data.max(1, keepdim=True)[1]
-                correct += pred.eq(target.data.view_as(pred)).sum()
-        test_loss /= len(self.__test_loader.dataset)
-        self.__test_losses.append(test_loss)
-        print('\n[INFO] Test set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss, correct, len(self.__test_loader.dataset),
-            100. * correct / len(self.__test_loader.dataset)))
+                _, predicted = output.data.max(1)
+                total += target.size(0)
+                correct += (predicted == target).sum().item()
+                bar.update(1)
+                bar.set_postfix(correct=f'{correct}/{total}')
+
+        print('\n[INFO] Test set: Accuracy: {}/{} ({:.0f}%)\n'.format(
+            correct, total, 100. * correct / total))
 
     def __call__(self, show_fig: bool = True):
         # for type hint

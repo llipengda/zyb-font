@@ -1,72 +1,76 @@
-# import os
-# import torchvision
-
-# from typing import Callable
-# from torchvision.datasets.vision import VisionDataset
-
-
-# class HWDB(VisionDataset):
-#     def __init__(self, root: str, train: bool, transform: Callable | None = None):
-#         super().__init__(root, transform=transform)
-
-#         train_folder = os.path.join(root, "train")
-#         test_folder = os.path.join(root, "test")
-
-#         if train:
-#             self.__dataset = torchvision.datasets.ImageFolder(
-#             train_folder, transform=transform)
-#         else:
-#             self.__dataset = torchvision.datasets.ImageFolder(
-#             test_folder, transform=transform)
-        
-#     def __getitem__(self, index: int):
-#         return self.__dataset[index]
-    
-#     def __len__(self):
-#         return len(self.__dataset)
 import os
-import random
-from torch.utils.data import DataLoader
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
-import matplotlib.pyplot as plt
+import torch
+import torchvision
+
+from typing import Callable
+from torchvision.datasets.vision import VisionDataset
 
 
-class HWDB(object):
-    def __init__(self,path, transform):
-        # 预处理过程
+class HWDB(VisionDataset):
+    def __init__(self, root: str, train: bool, transform: Callable | None = None):
+        super().__init__(root, transform=transform)
 
-        traindir = os.path.join(path, 'train')
-        testdir = os.path.join(path, 'test')
+        train_folder = os.path.join(root, "train")
+        test_folder = os.path.join(root, "test")
 
-        self.trainset = datasets.ImageFolder(traindir, transform)
-        self.testset = datasets.ImageFolder(testdir, transform)
-        self.train_size = len(self.trainset)
-        self.test_size = len(self.testset)
-        self.num_classes = len(self.trainset.classes)
-        self.class_to_idx = self.trainset.class_to_idx
+        if train:
+            self.__dataset = torchvision.datasets.ImageFolder(
+                train_folder, transform=transform)
+        else:
+            self.__dataset = torchvision.datasets.ImageFolder(
+                test_folder, transform=transform)
 
-    def get_sample(self, index=0):
-        sample = self.trainset[index]
-        sample_img, sample_label = sample
-        return sample_img, sample_label
+    def __getitem__(self, index: int):
+        image: torch.Tensor
+        label: torch.Tensor
+        image, label = self.__dataset[index]
+        return image, label
 
-    def get_loader(self, batch_size=100):
-        trainloader = DataLoader(self.trainset, batch_size=batch_size, shuffle=True)
-        testloader = DataLoader(self.testset, batch_size=batch_size, shuffle=True)
-        return trainloader, testloader
+    def __len__(self):
+        return len(self.__dataset)
+# import os
+# import random
+# from torch.utils.data import DataLoader
+# import torchvision.transforms as transforms
+# import torchvision.datasets as datasets
+# import matplotlib.pyplot as plt
 
 
-if __name__ == '__main__':
-    transform = transforms.Compose([
-        transforms.Resize((64, 64)),
-        transforms.ToTensor(),
-    ])
-    dataset = HWDB(path=r'data', transform=transform)
-    print("训练集数量：", dataset.train_size)
-    print("测试集数量：", dataset.test_size)
-    print("类别数量：", dataset.num_classes)
-    index = random.randint(0, dataset.train_size)
-    img = dataset.get_sample(index)[0][0]
-    plt.imshow(img, cmap='gray')
-    plt.show()
+# class HWDB(object):
+#     def __init__(self,path, transform):
+#         # 预处理过程
+
+#         traindir = os.path.join(path, 'train')
+#         testdir = os.path.join(path, 'test')
+
+#         self.trainset = datasets.ImageFolder(traindir, transform)
+#         self.testset = datasets.ImageFolder(testdir, transform)
+#         self.train_size = len(self.trainset)
+#         self.test_size = len(self.testset)
+#         self.num_classes = len(self.trainset.classes)
+#         self.class_to_idx = self.trainset.class_to_idx
+
+#     def get_sample(self, index=0):
+#         sample = self.trainset[index]
+#         sample_img, sample_label = sample
+#         return sample_img, sample_label
+
+#     def get_loader(self, batch_size=100):
+#         trainloader = DataLoader(self.trainset, batch_size=batch_size, shuffle=True)
+#         testloader = DataLoader(self.testset, batch_size=batch_size, shuffle=True)
+#         return trainloader, testloader
+
+
+# if __name__ == '__main__':
+#     transform = transforms.Compose([
+#         transforms.Resize((64, 64)),
+#         transforms.ToTensor(),
+#     ])
+#     dataset = HWDB(path=r'data', transform=transform)
+#     print("训练集数量：", dataset.train_size)
+#     print("测试集数量：", dataset.test_size)
+#     print("类别数量：", dataset.num_classes)
+#     index = random.randint(0, dataset.train_size)
+#     img = dataset.get_sample(index)[0][0]
+#     plt.imshow(img, cmap='gray')
+#     plt.show()
