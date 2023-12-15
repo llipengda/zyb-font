@@ -12,6 +12,8 @@ class HWDB(VisionDataset):
 
         train_folder = os.path.join(root, "train")
         test_folder = os.path.join(root, "test")
+        
+        self.__MNIST_v = 'MNIST' in root
 
         if train:
             self.__dataset = torchvision.datasets.ImageFolder(
@@ -24,6 +26,10 @@ class HWDB(VisionDataset):
         image: torch.Tensor
         label: torch.Tensor
         image, label = self.__dataset[index]
+        
+        if self.__MNIST_v:
+            label += 10000
+        
         return image, label
 
     def __len__(self):
