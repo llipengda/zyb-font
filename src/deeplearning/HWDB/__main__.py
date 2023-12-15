@@ -25,7 +25,7 @@ def run_mnist(epochs=10):
             or len(os.listdir('data/HWDB/MNIST/test')) == 0 or len(os.listdir('data/HWDB/MNIST/train')) == 0:
         load_mnist_data()
 
-    train = Train(epochs, 'data/HWDB/MNIST')
+    train = Train(epochs, True)
     train(False)
 
 
