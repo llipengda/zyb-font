@@ -22,8 +22,8 @@ class Train:
     BATCH_SIZE_TRAIN = 100
     BATCH_SIZE_TEST = 2000
     LEARNING_RATE = 0.01
-    LOG_INTERVAL = 10
-    NUM_WORKERS = 24
+    LOG_INTERVAL = 100
+    NUM_WORKERS = 16
 
     def __init__(self, epochs: int = 10):
         self.__epochs = epochs
@@ -121,7 +121,7 @@ class Train:
                            'out/HWDB/optimizer.pth')
 
         avg_loss = sum(self.__train_losses[
-            -len(self.__train_loader) * Train.BATCH_SIZE_TRAIN:]) / len(self.__train_loader)
+            -len(self.__train_loader) // Train.LOG_INTERVAL:]) / (len(self.__train_loader) // Train.LOG_INTERVAL)
         bar.set_postfix(loss=f'{avg_loss:.6f}',
                         correct=f'{(correct / total) * 100.:.6f}%')
 
