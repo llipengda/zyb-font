@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from pathlib import PosixPath
 from datetime import datetime
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, ConcatDataset
 from matplotlib.font_manager import FontProperties
 
 from deeplearning.HWDB.Module import Module
@@ -26,14 +26,14 @@ class Train:
     LOG_INTERVAL = 100
     NUM_WORKERS = 16
 
-    def __init__(self, epochs: int = 10, root: str = 'data/HWDB'):
+    def __init__(self, epochs = 10, with_mnist = False):
         self.__epochs = epochs
-        self.__root = root
+        self.__with_mnist = with_mnist
         self.__load_data()
 
         self.__device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
-        print("Train - Using device:", self.__device)
+        print("[INFO] Train - Using device:", self.__device)
 
         self.__module = Module(len(self.__char_dict)).to(self.__device)
         self.__optimizer = torch.optim.SGD(
@@ -47,7 +47,8 @@ class Train:
             self.__optimizer.load_state_dict(
                 torch.load('out/HWDB/optimizer.pth'))
 
-        assert isinstance(self.__train_loader.dataset, HWDB)
+        assert isinstance(self.__train_loader.dataset, HWDB) \
+            or isinstance(self.__train_loader.dataset, ConcatDataset)
 
         self.__train_losses: list[float] = []
         self.__train_counter: list[int] = []
@@ -57,9 +58,22 @@ class Train:
             transforms.Resize((64, 64)),
             transforms.ToTensor(),
         ])
+        
+        train_dataset = HWDB('data/HWDB', train=True, transform=transform)
+        test_dataset = HWDB('data/HWDB', train=False, transform=transform)
+        
+        if self.__with_mnist:
+            train_dataset = ConcatDataset([
+                train_dataset,
+                HWDB('data/HWDB/MNIST', train=True, transform=transform)
+            ])
+            test_dataset = ConcatDataset([
+                test_dataset,
+                HWDB('data/HWDB/MNIST', train=False, transform=transform)
+            ])
 
         self.__train_loader = DataLoader(
-            HWDB(self.__root, train=True, transform=transform),
+            train_dataset,
             batch_size=Train.BATCH_SIZE_TRAIN,
             num_workers=Train.NUM_WORKERS,
             pin_memory=True,
@@ -67,7 +81,7 @@ class Train:
         )
 
         self.__test_loader = DataLoader(
-            HWDB(self.__root, train=False, transform=transform),
+            test_dataset,
             batch_size=Train.BATCH_SIZE_TEST,
             num_workers=Train.NUM_WORKERS,
             pin_memory=True,
@@ -80,9 +94,11 @@ class Train:
     def train(self, epoch: int):
         # for type hint
         assert isinstance(self.__train_loader.dataset,
-                          HWDB)
+                          HWDB) \
+            or isinstance(self.__train_loader.dataset, ConcatDataset)
         assert isinstance(self.__test_loader.dataset,
-                          HWDB)
+                          HWDB) \
+            or isinstance(self.__test_loader.dataset, ConcatDataset)
 
         self.__module.train()
 
@@ -130,9 +146,11 @@ class Train:
     def test(self, epoch: int):
         # for type hint
         assert isinstance(self.__train_loader.dataset,
-                          HWDB)
+                          HWDB) \
+            or isinstance(self.__train_loader.dataset, ConcatDataset)
         assert isinstance(self.__test_loader.dataset,
-                          HWDB)
+                          HWDB) \
+            or isinstance(self.__test_loader.dataset, ConcatDataset)
 
         bar = tqdm(total=len(self.__test_loader) *
                    Train.BATCH_SIZE_TEST, desc=f'Test {epoch}')
@@ -159,9 +177,11 @@ class Train:
     def __call__(self, show_fig: bool = True):
         # for type hint
         assert isinstance(self.__train_loader.dataset,
-                          HWDB)
+                          HWDB) \
+            or isinstance(self.__train_loader.dataset, ConcatDataset)
         assert isinstance(self.__test_loader.dataset,
-                          HWDB)
+                          HWDB) \
+            or isinstance(self.__test_loader.dataset, ConcatDataset)
 
         self.test(0)
 
@@ -169,15 +189,17 @@ class Train:
             self.train(epoch)
             self.test(epoch)
 
-        os.makedirs('out/HWDB/png', exist_ok=True)
-        plt.figure()
-        plt.plot(self.__train_counter, self.__train_losses, color='blue')
-        plt.legend(['Train Loss'], loc='upper right')
-        plt.xlabel('number of training examples seen')
-        plt.ylabel('negative log likelihood loss')
-        if show_fig:
-            plt.show()
-        plt.savefig(f'out/HWDB/png/loss-{datetime.now()}.png')
+        os.makedirs('out/HWDB/png/loss', exist_ok=True)
+        os.makedirs('out/HWDB/png/prediction', exist_ok=True)
+        if self.__train_counter:
+            plt.figure()
+            plt.plot(self.__train_counter, self.__train_losses, color='blue')
+            plt.legend(['Train Loss'], loc='upper right')
+            plt.xlabel('number of training examples seen')
+            plt.ylabel('negative log likelihood loss')
+            if show_fig:
+                plt.show()
+            plt.savefig(f'out/HWDB/png/loss/{datetime.now()}.png')
 
         examples = enumerate(self.__test_loader)
         _, (example_data, example_targets) = next(examples)
@@ -192,19 +214,20 @@ class Train:
             output = self.__module(example_data)
 
         sim_hei = FontProperties(fname=PosixPath("font/SimHei.ttf"))
-        plt.figure()
-        for i in range(6):
-            plt.subplot(2, 3, i + 1)
-            plt.tight_layout()
-            img = example_data[i][0].cpu().numpy()
-            plt.imshow(img, cmap='gray', interpolation='none')
-            plt.title("Prediction: {}".format(
-                self.__char_dict[f'{output.data.max(1, keepdim=True)[1][i].item():05d}']),
-                fontproperties=sim_hei)
-            plt.xticks([])
-            plt.yticks([])
-        if show_fig:
-            plt.show()
-        plt.savefig(f'out/HWDB/png/prediction-{datetime.now()}.png')
+        for r in range(5):
+            plt.figure()
+            for i in range(6):
+                plt.subplot(2, 3, i + 1)
+                plt.tight_layout()
+                img = example_data[i + r * 6][0].cpu().numpy()
+                plt.imshow(img, cmap='gray', interpolation='none')
+                plt.title("Prediction: {}".format(
+                    self.__char_dict[f'{output.data.max(1, keepdim=True)[1][i + r * 6].item():05d}']),
+                    fontproperties=sim_hei)
+                plt.xticks([])
+                plt.yticks([])
+            if show_fig:
+                plt.show()
+            plt.savefig(f'out/HWDB/png/prediction/{datetime.now()}.png')
 
-        print("Train - Done\n")
+        print("[INFO] Train - Done\n")
