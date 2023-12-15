@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 from tqdm import tqdm
 from pathlib import PosixPath
+from datetime import datetime
 from torch.utils.data import DataLoader
 from matplotlib.font_manager import FontProperties
 
@@ -169,13 +170,14 @@ class Train:
             self.test(epoch)
 
         if show_fig:
+            os.makedirs('out/HWDB/png', exist_ok=True)
             plt.figure()
             plt.plot(self.__train_counter, self.__train_losses, color='blue')
             plt.legend(['Train Loss'], loc='upper right')
             plt.xlabel('number of training examples seen')
             plt.ylabel('negative log likelihood loss')
             plt.show()
-            plt.savefig('out/HWDB/loss.png')
+            plt.savefig(f'out/HWDB/png/loss-{datetime.now()}.png')
 
         examples = enumerate(self.__test_loader)
         _, (example_data, example_targets) = next(examples)
