@@ -169,15 +169,15 @@ class Train:
             self.train(epoch)
             self.test(epoch)
 
+        os.makedirs('out/HWDB/png', exist_ok=True)
+        plt.figure()
+        plt.plot(self.__train_counter, self.__train_losses, color='blue')
+        plt.legend(['Train Loss'], loc='upper right')
+        plt.xlabel('number of training examples seen')
+        plt.ylabel('negative log likelihood loss')
         if show_fig:
-            os.makedirs('out/HWDB/png', exist_ok=True)
-            plt.figure()
-            plt.plot(self.__train_counter, self.__train_losses, color='blue')
-            plt.legend(['Train Loss'], loc='upper right')
-            plt.xlabel('number of training examples seen')
-            plt.ylabel('negative log likelihood loss')
             plt.show()
-            plt.savefig(f'out/HWDB/png/loss-{datetime.now()}.png')
+        plt.savefig(f'out/HWDB/png/loss-{datetime.now()}.png')
 
         examples = enumerate(self.__test_loader)
         _, (example_data, example_targets) = next(examples)
@@ -191,20 +191,20 @@ class Train:
         with torch.no_grad():
             output = self.__module(example_data)
 
+        sim_hei = FontProperties(fname=PosixPath("font/SimHei.ttf"))
+        plt.figure()
+        for i in range(6):
+            plt.subplot(2, 3, i + 1)
+            plt.tight_layout()
+            img = example_data[i][0].cpu().numpy()
+            plt.imshow(img, cmap='gray', interpolation='none')
+            plt.title("Prediction: {}".format(
+                self.__char_dict[f'{output.data.max(1, keepdim=True)[1][i].item():05d}']),
+                fontproperties=sim_hei)
+            plt.xticks([])
+            plt.yticks([])
         if show_fig:
-            sim_hei = FontProperties(fname=PosixPath("font/SimHei.ttf"))
-            plt.figure()
-            for i in range(6):
-                plt.subplot(2, 3, i + 1)
-                plt.tight_layout()
-                img = example_data[i][0].cpu().numpy()
-                plt.imshow(img, cmap='gray', interpolation='none')
-                plt.title("Prediction: {}".format(
-                    self.__char_dict[f'{output.data.max(1, keepdim=True)[1][i].item():05d}']),
-                    fontproperties=sim_hei)
-                plt.xticks([])
-                plt.yticks([])
             plt.show()
-            plt.savefig('out/HWDB/prediction.png')
+        plt.savefig(f'out/HWDB/png/prediction-{datetime.now()}.png')
 
         print("Train - Done\n")

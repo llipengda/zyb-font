@@ -26,7 +26,7 @@ def run_mnist(epochs=10):
         load_mnist_data()
 
     train = Train(epochs, 'data/HWDB/MNIST')
-    train(True)
+    train(False)
 
 
 if __name__ == "__main__":
