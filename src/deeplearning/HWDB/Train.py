@@ -25,8 +25,9 @@ class Train:
     LOG_INTERVAL = 100
     NUM_WORKERS = 16
 
-    def __init__(self, epochs: int = 10):
+    def __init__(self, epochs: int = 10, root: str = 'data/HWDB'):
         self.__epochs = epochs
+        self.__root = root
         self.__load_data()
 
         self.__device = torch.device(
@@ -57,7 +58,7 @@ class Train:
         ])
 
         self.__train_loader = DataLoader(
-            HWDB('data/HWDB', train=True, transform=transform),
+            HWDB(self.__root, train=True, transform=transform),
             batch_size=Train.BATCH_SIZE_TRAIN,
             num_workers=Train.NUM_WORKERS,
             pin_memory=True,
@@ -65,7 +66,7 @@ class Train:
         )
 
         self.__test_loader = DataLoader(
-            HWDB('data/HWDB', train=False, transform=transform),
+            HWDB(self.__root, train=False, transform=transform),
             batch_size=Train.BATCH_SIZE_TEST,
             num_workers=Train.NUM_WORKERS,
             pin_memory=True,

@@ -3,6 +3,7 @@ import os
 from deeplearning.HWDB.Train import Train
 from deeplearning.HWDB.fetch_data import fetch_data
 from deeplearning.HWDB.process_data import load_img_from_gnt
+from deeplearning.HWDB.process_mnist_data import load_mnist_data
 
 
 def run(epochs=10):
@@ -16,7 +17,16 @@ def run(epochs=10):
         load_img_from_gnt()
 
     train = Train(epochs)
-    train()
+    train(False)
+
+
+def run_mnist(epochs=10):
+    if not os.path.exists('data/HWDB/MNIST/test') or not os.path.exists('data/HWDB/MNIST/train') \
+            or len(os.listdir('data/HWDB/MNIST/test')) == 0 or len(os.listdir('data/HWDB/MNIST/train')) == 0:
+        load_mnist_data()
+
+    train = Train(epochs, 'data/HWDB/MNIST')
+    train(True)
 
 
 if __name__ == "__main__":
