@@ -1,7 +1,9 @@
 data/
-*.pth
 venv/
 .venv/
 draw/
 __pycache__/
 out/
+!*.pth
+!char_dict
+!use_char_dict
