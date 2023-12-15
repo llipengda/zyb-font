@@ -18,7 +18,7 @@ class Predict:
             return
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print("Predict - Using device:", device)
+        print("[INFO] Predict - Using device:", device)
         self.__device = device
 
         with open('data/HWDB/use_char_dict', 'rb') as f:
@@ -49,9 +49,15 @@ class Predict:
                 img.to(self.__device)).to(self.__device)
 
         probabilities = f.softmax(output[0], dim=0)
-        predicted_num = torch.argmax(probabilities).item()
-        predicted_class = self.__char_dict[f'{predicted_num:05d}']
+        predicted_indices = torch.topk(probabilities, k=3).indices
+        predicted = predicted_indices[0].item()
+        predicted_class = self.__char_dict[f'{predicted:05d}']
         
-        print(f"[INFO] 预测结果：{predicted_class}\n")
+        res = "[INFO] 预测结果："
+        for i in range(3):
+            _predicted = predicted_indices[i].item()
+            _predicted_class = self.__char_dict[f'{_predicted:05d}']
+            res += f'{_predicted_class}({probabilities[int(_predicted)].item() * 100:.2f}%)  '
+        print(res)
 
         return predicted_class
