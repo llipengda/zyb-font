@@ -1,10 +1,7 @@
-data/
+data/**/raw/
+data/**/test/
+data/**/train/
+out/**/png/
 venv/
-.venv/
 draw/
 __pycache__/
-out/
-!model.pth
-!optimizer.pth
-!char_dict
-!use_char_dict
