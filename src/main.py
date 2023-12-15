@@ -11,10 +11,10 @@ root_path = os.path.dirname(src_path)
 os.chdir(root_path)
 
 
-def main(type: Literal['MNIST', 'HWDB'], force_train: bool = False, epochs: int = 10):
-    deeplearning.ensure_module(type, force_train, epochs)
-    gui.paint.run(type)
+def main(model_type: Literal['MNIST', 'HWDB', 'HWDB+MNIST'], force_train: bool = False, epochs: int = 10):
+    deeplearning.ensure_model(model_type, force_train, epochs)
+    gui.paint.run(model_type)
 
 
 if __name__ == '__main__':
-    main('HWDB')
+    main('HWDB+MNIST')

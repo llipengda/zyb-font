@@ -8,7 +8,7 @@ from deeplearning.MNIST import predict as MNIST_predict
 from deeplearning.HWDB import predict as HWDB_predict
 
 
-def run(type: Literal['MNIST', 'HWDB']):
+def run(type: Literal['MNIST', 'HWDB', 'HWDB+MNIST']):
     app = QApplication(sys.argv)
 
     predict_func = MNIST_predict() if type == 'MNIST' else HWDB_predict()

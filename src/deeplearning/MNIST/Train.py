@@ -57,6 +57,8 @@ class Train:
                            (0.1307,), (0.3081,))
                    ])),
             batch_size=Train.BATCH_SIZE_TRAIN,
+            num_workers=8,
+            pin_memory=True,
             shuffle=True
         )
 
@@ -72,6 +74,8 @@ class Train:
                            (0.1307,), (0.3081,))
                    ])),
             batch_size=Train.BATCH_SIZE_TEST,
+            num_workers=8,
+            pin_memory=True,
             shuffle=True
         )
 
