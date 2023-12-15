@@ -60,7 +60,7 @@ class Module(nn.Module):
         self.conv15 = conv_dw(256, 512, 2)  # 4x4x512
         self.conv16 = conv_dw(512, 512, 1)  # 4x4x512
         self.classifier = nn.Sequential(
-            nn.Linear(512*4*4, 1024),
+            nn.Linear(512 * 4 * 4, 1024),
             nn.Dropout(0.2),
             nn.ReLU(inplace=True),
             nn.Linear(1024, num_classes),

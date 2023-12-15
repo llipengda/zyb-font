@@ -1,4 +1,5 @@
 import os
+import pickle
 import torch
 import torchvision
 
@@ -14,6 +15,9 @@ class HWDB(VisionDataset):
         test_folder = os.path.join(root, "test")
         
         self.__MNIST_v = 'MNIST' in root
+        
+        with open('data/HWDB/use_char_dict', 'rb') as f:
+            self.__char_dict: dict[str, str] = pickle.load(f)
 
         if train:
             self.__dataset = torchvision.datasets.ImageFolder(
@@ -28,7 +32,7 @@ class HWDB(VisionDataset):
         image, label = self.__dataset[index]
         
         if self.__MNIST_v:
-            label += 10000
+            label += len(self.__char_dict) - 10
         
         return image, label
 

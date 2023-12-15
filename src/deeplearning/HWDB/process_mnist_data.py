@@ -9,9 +9,9 @@ from PIL import Image
 
 
 def load_mnist_data():
-    if os.path.exists('data/HWDB/MNIST/train') and os.path.exists('data/HWDB/MNIST/test') \
-            and len(os.listdir('data/HWDB/MNIST/train')) == 10 and len(os.listdir('data/HWDB/MNIST/test')) == 10:
-        return
+    # if os.path.exists('data/HWDB/MNIST/train') and os.path.exists('data/HWDB/MNIST/test') \
+    #         and len(os.listdir('data/HWDB/MNIST/train')) == 10 and len(os.listdir('data/HWDB/MNIST/test')) == 10:
+    #     return
 
     train_dataset = datasets.MNIST(root='./data',
                                    train=True,
@@ -26,20 +26,31 @@ def load_mnist_data():
                                       transforms.Resize((64, 64)),
                                       transforms.ToTensor()
                                   ]))
+    
+    with open('data/HWDB/use_char_dict', 'rb') as f:
+        tmp_dict: dict[str, str] = pickle.load(f)
+        print(tmp_dict)
+        ignore = [str(i) for i in range(10)]
+        tmp_dict = {k: v for k, v in tmp_dict.items() if v not in ignore}
+        offset = len(tmp_dict)
 
-    train_folders = [f'data/HWDB/MNIST/train/{i + 10000}' for i in range(10)]
-    test_folders = [f'data/HWDB/MNIST/test/{i + 10000}' for i in range(10)]
+    train_folders = [f'data/HWDB/MNIST/train/{i + offset}' for i in range(10)]
+    test_folders = [f'data/HWDB/MNIST/test/{i + offset}' for i in range(10)]
 
-    with open('data/HWDB/use_char_dict', 'r+b') as f:
+    with open('data/HWDB/use_char_dict', 'rb') as f:
         use_char_dict: dict[str, str] = pickle.load(f)
         for i in range(10):
-            use_char_dict[str(i + 10000)] = str(i)
+            use_char_dict[f'{i + offset:05d}'] = str(i)
+            
+    with open('data/HWDB/use_char_dict', 'wb') as f:
         pickle.dump(use_char_dict, f)
 
-    with open('data/HWDB/char_dict', 'r+b') as f:
+    with open('data/HWDB/char_dict', 'rb') as f:
         char_dict: dict[str, str] = pickle.load(f)
         for i in range(10):
-            char_dict[str(i)] = str(i + 10000)
+            char_dict[str(i)] = f'{i + offset:05d}'
+            
+    with open('data/HWDB/char_dict', 'wb') as f:
         pickle.dump(char_dict, f)
 
     for folder in train_folders + test_folders:
