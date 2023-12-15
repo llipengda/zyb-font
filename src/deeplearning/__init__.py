@@ -16,7 +16,6 @@ def ensure_model(model_type: Literal['MNIST', 'HWDB', 'HWDB+MNIST'], force_train
         elif model_type == 'HWDB':
             HWDB.train_and_test(epochs)
         elif model_type == 'HWDB+MNIST':
-            HWDB.train_and_test(epochs)
             HWDB.train_and_test_mnist(epochs)
 
 
