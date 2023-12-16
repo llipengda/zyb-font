@@ -4,14 +4,14 @@ from typing import Literal
 from PyQt5.QtWidgets import QApplication
 
 from gui.paint.Widget import Widget
-from deeplearning.MNIST import predict as MNIST_predict
-from deeplearning.HWDB import predict as HWDB_predict
+from deeplearning.MNIST import predict as mnist_predict
+from deeplearning.HWDB import predict as hwdb_predict
 
 
-def run(type: Literal['MNIST', 'HWDB', 'HWDB+MNIST']):
+def run(model_type: Literal['MNIST', 'HWDB', 'HWDB+MNIST']):
     app = QApplication(sys.argv)
 
-    predict_func = MNIST_predict() if type == 'MNIST' else HWDB_predict()
+    predict_func = mnist_predict() if model_type == 'MNIST' else hwdb_predict()
     main_widget = Widget(predict_func)  # 新建一个主界面
     main_widget.show()  # 显示主界面
 

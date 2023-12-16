@@ -5,3 +5,4 @@ out/**/png/
 venv/
 draw/
 __pycache__/
+logs/

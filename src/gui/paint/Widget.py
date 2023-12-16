@@ -11,10 +11,10 @@ from gui.paint.PaintBoard import PaintBoard
 # noinspection PyUnresolvedReferences
 class Widget(QWidget):
 
-    def __init__(self, pridict: Callable, parent=None):
+    def __init__(self, predict: Callable, parent=None):
         super().__init__(parent=parent)
 
-        self.__predict = pridict
+        self.__predict = predict
         self.__init_data()
         self.__init_view()
 
