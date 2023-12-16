@@ -8,8 +8,9 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from pathlib import PosixPath
 from datetime import datetime
-from torch.utils.data import DataLoader, ConcatDataset
 from matplotlib.font_manager import FontProperties
+from torch.utils.data import DataLoader, ConcatDataset
+from torch.utils.tensorboard import writer
 
 from deeplearning.HWDB.Module import Module
 from deeplearning.HWDB.HWDB import HWDB
@@ -20,13 +21,13 @@ torch.backends.cudnn.deterministic = True
 
 
 class Train:
-    BATCH_SIZE_TRAIN = 100
+    BATCH_SIZE_TRAIN = 25
     BATCH_SIZE_TEST = 2000
-    LEARNING_RATE = 0.01
+    LEARNING_RATE = 0.005
     LOG_INTERVAL = 100
     NUM_WORKERS = 16
 
-    def __init__(self, epochs = 10, with_mnist = False):
+    def __init__(self, epochs=10, with_mnist=False):
         self.__epochs = epochs
         self.__with_mnist = with_mnist
         self.__load_data()
@@ -40,6 +41,10 @@ class Train:
             self.__module.parameters(), lr=Train.LEARNING_RATE)
         self.__criterion = nn.CrossEntropyLoss()
 
+        log_dir = f'logs/HWDB/{datetime.now()}'
+        os.makedirs(log_dir, exist_ok=True)
+        self.__writer = writer.SummaryWriter(log_dir)
+
         if os.path.exists('out/HWDB/model.pth'):
             self.__module.load_state_dict(torch.load('out/HWDB/model.pth'))
 
@@ -48,20 +53,20 @@ class Train:
                 torch.load('out/HWDB/optimizer.pth'))
 
         assert isinstance(self.__train_loader.dataset, HWDB) \
-            or isinstance(self.__train_loader.dataset, ConcatDataset)
+               or isinstance(self.__train_loader.dataset, ConcatDataset)
 
         self.__train_losses: list[float] = []
         self.__train_counter: list[int] = []
 
     def __load_data(self):
         transform = transforms.Compose([
-            transforms.Resize((64, 64)),
+            transforms.Resize((128, 128)),
             transforms.ToTensor(),
         ])
-        
+
         train_dataset = HWDB('data/HWDB', train=True, transform=transform)
         test_dataset = HWDB('data/HWDB', train=False, transform=transform)
-        
+
         if self.__with_mnist:
             train_dataset = ConcatDataset([
                 train_dataset,
@@ -95,16 +100,16 @@ class Train:
         # for type hint
         assert isinstance(self.__train_loader.dataset,
                           HWDB) \
-            or isinstance(self.__train_loader.dataset, ConcatDataset)
+               or isinstance(self.__train_loader.dataset, ConcatDataset)
         assert isinstance(self.__test_loader.dataset,
                           HWDB) \
-            or isinstance(self.__test_loader.dataset, ConcatDataset)
+               or isinstance(self.__test_loader.dataset, ConcatDataset)
 
         self.__module.train()
 
         total = 0
         correct = 0
-        bar = tqdm(total=len(self.__train_loader) * Train.BATCH_SIZE_TRAIN, 
+        bar = tqdm(total=len(self.__train_loader) * Train.BATCH_SIZE_TRAIN,
                    desc=f'Train {epoch}')
 
         for batch_idx, (data, target) in enumerate(self.__train_loader):
@@ -122,7 +127,8 @@ class Train:
             self.__optimizer.step()
 
             if batch_idx % Train.LOG_INTERVAL == 0:
-                if (minus := (batch_idx // Train.LOG_INTERVAL + 1) * Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN - len(self.__train_loader) * Train.BATCH_SIZE_TRAIN) > 0:
+                if (minus := (batch_idx // Train.LOG_INTERVAL + 1) * Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN - len(
+                        self.__train_loader) * Train.BATCH_SIZE_TRAIN) > 0:
                     bar.update(Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN - minus)
                 else:
                     bar.update(Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN)
@@ -133,13 +139,17 @@ class Train:
                 self.__train_counter.append((batch_idx * self.BATCH_SIZE_TRAIN) +
                                             ((epoch - 1) * len(self.__train_loader.dataset)))
 
+                self.__writer.add_scalar('Train/Loss', loss.item(), len(self.__train_counter))
+                self.__writer.add_scalar('Train/Accuracy', (correct / total) * 100., len(self.__train_counter))
+
                 os.makedirs('out/HWDB', exist_ok=True)
                 torch.save(self.__module.state_dict(), 'out/HWDB/model.pth')
                 torch.save(self.__optimizer.state_dict(),
                            'out/HWDB/optimizer.pth')
 
         avg_loss = sum(self.__train_losses[
-            -len(self.__train_loader) // Train.LOG_INTERVAL:]) / (len(self.__train_loader) // Train.LOG_INTERVAL)
+                       -len(self.__train_loader) // Train.LOG_INTERVAL:]) / (
+                           len(self.__train_loader) // Train.LOG_INTERVAL)
         bar.set_postfix(loss=f'{avg_loss:.6f}',
                         correct=f'{(correct / total) * 100.:.6f}%')
 
@@ -147,13 +157,12 @@ class Train:
         # for type hint
         assert isinstance(self.__train_loader.dataset,
                           HWDB) \
-            or isinstance(self.__train_loader.dataset, ConcatDataset)
+               or isinstance(self.__train_loader.dataset, ConcatDataset)
         assert isinstance(self.__test_loader.dataset,
                           HWDB) \
-            or isinstance(self.__test_loader.dataset, ConcatDataset)
+               or isinstance(self.__test_loader.dataset, ConcatDataset)
 
-        bar = tqdm(total=len(self.__test_loader) *
-                   Train.BATCH_SIZE_TEST, desc=f'Test {epoch}')
+        bar = tqdm(total=len(self.__test_loader) * Train.BATCH_SIZE_TEST, desc=f'Test {epoch}')
 
         self.__module.eval()
         total = 0
@@ -174,14 +183,16 @@ class Train:
                 bar.set_postfix(
                     correct=f'{correct}/{total}({(correct / total) * 100.:.6f}%)')
 
+        self.__writer.add_scalar('Test/Accuracy', (correct / total) * 100., epoch)
+
     def __call__(self, show_fig: bool = True):
         # for type hint
         assert isinstance(self.__train_loader.dataset,
                           HWDB) \
-            or isinstance(self.__train_loader.dataset, ConcatDataset)
+               or isinstance(self.__train_loader.dataset, ConcatDataset)
         assert isinstance(self.__test_loader.dataset,
                           HWDB) \
-            or isinstance(self.__test_loader.dataset, ConcatDataset)
+               or isinstance(self.__test_loader.dataset, ConcatDataset)
 
         self.test(0)
 
@@ -229,5 +240,8 @@ class Train:
             if show_fig:
                 plt.show()
             plt.savefig(f'out/HWDB/png/prediction/{datetime.now()}.png')
+            self.__writer.add_figure('Test/Prediction', plt.gcf(), r)
+
+        self.__writer.close()
 
         print("[INFO] Train - Done\n")
