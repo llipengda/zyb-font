@@ -9,21 +9,21 @@ from PIL import Image
 
 
 def load_mnist_data():
-    # if os.path.exists('data/HWDB/MNIST/train') and os.path.exists('data/HWDB/MNIST/test') \
-    #         and len(os.listdir('data/HWDB/MNIST/train')) == 10 and len(os.listdir('data/HWDB/MNIST/test')) == 10:
-    #     return
+    if os.path.exists('data/HWDB/MNIST/train') and os.path.exists('data/HWDB/MNIST/test') \
+            and len(os.listdir('data/HWDB/MNIST/train')) == 10 and len(os.listdir('data/HWDB/MNIST/test')) == 10:
+        return
 
     train_dataset = datasets.MNIST(root='./data',
                                    train=True,
                                    download=True,
                                    transform=transforms.Compose([
-                                       transforms.Resize((64, 64)),
+                                       transforms.Resize((128, 128)),
                                        transforms.ToTensor()
                                    ]))
     test_dataset = datasets.MNIST(root='./data',
                                   train=False,
                                   transform=transforms.Compose([
-                                      transforms.Resize((64, 64)),
+                                      transforms.Resize((128, 128)),
                                       transforms.ToTensor()
                                   ]))
     
@@ -53,8 +53,8 @@ def load_mnist_data():
     with open('data/HWDB/char_dict', 'wb') as f:
         pickle.dump(char_dict, f)
 
-    for folder in train_folders + test_folders:
-        os.makedirs(folder, exist_ok=True)
+    for f in train_folders + test_folders:
+        os.makedirs(f, exist_ok=True)
 
     bar = tqdm(total=len(train_dataset.data) +
                len(test_dataset.data), desc='Process MNIST data')
@@ -63,7 +63,7 @@ def load_mnist_data():
         label = int(target.item())
         folder = folders[label]
         image = Image.fromarray(data.numpy(), mode='L')
-        image = image.resize((64, 64))
+        image = image.resize((128, 128))
         image = image.point(lambda x: 255 - x)
         image.save(f'{folder}/{index}.png')
         bar.update()
