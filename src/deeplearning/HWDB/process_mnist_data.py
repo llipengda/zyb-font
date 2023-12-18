@@ -17,13 +17,13 @@ def load_mnist_data():
                                    train=True,
                                    download=True,
                                    transform=transforms.Compose([
-                                       transforms.Resize((128, 128)),
+                                       transforms.Resize((64, 64)),
                                        transforms.ToTensor()
                                    ]))
     test_dataset = datasets.MNIST(root='./data',
                                   train=False,
                                   transform=transforms.Compose([
-                                      transforms.Resize((128, 128)),
+                                      transforms.Resize((64, 64)),
                                       transforms.ToTensor()
                                   ]))
     
@@ -63,7 +63,7 @@ def load_mnist_data():
         label = int(target.item())
         folder = folders[label]
         image = Image.fromarray(data.numpy(), mode='L')
-        image = image.resize((128, 128))
+        image = image.resize((64, 64))
         image = image.point(lambda x: 255 - x)
         image.save(f'{folder}/{index}.png')
         bar.update()
