@@ -21,9 +21,9 @@ torch.backends.cudnn.deterministic = True
 
 
 class Train:
-    BATCH_SIZE_TRAIN = 25
+    BATCH_SIZE_TRAIN = 64
     BATCH_SIZE_TEST = 2000
-    LEARNING_RATE = 0.005
+    LEARNING_RATE = 0.01
     LOG_INTERVAL = 100
     NUM_WORKERS = 16
 
@@ -60,7 +60,7 @@ class Train:
 
     def __load_data(self):
         transform = transforms.Compose([
-            transforms.Resize((128, 128)),
+            transforms.Resize((64, 64)),
             transforms.ToTensor(),
         ])
 
@@ -133,7 +133,7 @@ class Train:
                 else:
                     bar.update(Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN)
                 bar.set_postfix(loss=f'{loss.item():.6f}',
-                                correct=f'{(correct / total) * 100.:.6f}%')
+                                avg_correct=f'{(correct / total) * 100.:.6f}%')
 
                 self.__train_losses.append(loss.item())
                 self.__train_counter.append((batch_idx * self.BATCH_SIZE_TRAIN) +
