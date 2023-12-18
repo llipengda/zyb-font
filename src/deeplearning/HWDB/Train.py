@@ -21,10 +21,10 @@ torch.backends.cudnn.deterministic = True
 
 
 class Train:
-    BATCH_SIZE_TRAIN = 64
+    BATCH_SIZE_TRAIN = 25
     BATCH_SIZE_TEST = 2000
-    LEARNING_RATE = 0.01
-    LOG_INTERVAL = 100
+    LEARNING_RATE = 0.005
+    LOG_INTERVAL = 500
     NUM_WORKERS = 16
     WEIGHT_DECAY = 0.001
 

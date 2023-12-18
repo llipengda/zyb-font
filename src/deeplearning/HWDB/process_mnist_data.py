@@ -29,7 +29,6 @@ def load_mnist_data():
     
     with open('data/HWDB/use_char_dict', 'rb') as f:
         tmp_dict: dict[str, str] = pickle.load(f)
-        print(tmp_dict)
         ignore = [str(i) for i in range(10)]
         tmp_dict = {k: v for k, v in tmp_dict.items() if v not in ignore}
         offset = len(tmp_dict)
