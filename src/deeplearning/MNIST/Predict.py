@@ -16,7 +16,7 @@ class Predict:
             return
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print("Predict - Using device:", device)
+        print("[INFO] Predict - Using device:", device)
         self.__device = device
         module = Module().to(device)
         module.load_state_dict(torch.load("out/MNIST/model.pth"))
@@ -30,7 +30,7 @@ class Predict:
         assert isinstance(self.__module, Module)
 
         img = Image.open(pic_url).convert('L')
-        img = img.resize((28, 28))
+        img = img.resize((64, 64))
         img = img.point(lambda x: 255 - x)
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -53,7 +53,7 @@ class Predict:
 
         print("\n[INFO] 预测概率：")
         for k, v in res_map.items():
-            print(f"    {k}: {v:.2f}")
+            print(f"    {k}: {v}")
         print(f"[INFO] 预测结果：{predicted_class}\n")
 
         return predicted_class

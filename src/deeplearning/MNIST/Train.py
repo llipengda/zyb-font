@@ -5,15 +5,17 @@ import torch.nn.functional as f
 import torch.optim as optim
 import matplotlib.pyplot as plt
 
-from torch.utils.data import DataLoader
 from tqdm import tqdm
+from datetime import datetime
+from torch.utils.data import DataLoader
+from torch.utils.tensorboard import writer
 
 from deeplearning.MNIST.Module import Module
 
 
 class Train:
     BATCH_SIZE_TRAIN = 64
-    BATCH_SIZE_TEST = 1000
+    BATCH_SIZE_TEST = 250
     LEARNING_RATE = 0.01
     MOMENTUM = 0.5
     LOG_INTERVAL = 10
@@ -24,7 +26,6 @@ class Train:
         self.__load_data()
         self.__epochs = epochs
 
-        # for type hint
         assert isinstance(self.__train_loader.dataset,
                           torchvision.datasets.MNIST)
         assert isinstance(self.__test_loader.dataset,
@@ -32,7 +33,7 @@ class Train:
 
         self.__device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
-        print("Train - Using device:", self.__device)
+        print("[INFO] Train - Using device:", self.__device)
 
         self.__module = Module().to(self.__device)
         self.__optimizer = optim.SGD(self.__module.parameters(),
@@ -44,6 +45,10 @@ class Train:
         self.__test_counter = [i * len(self.__train_loader.dataset)
                                for i in range(self.__epochs + 1)]
 
+        log_dir = f'logs/MNIST/{datetime.now().strftime("%Y-%m-%dT%H-%M-%S")}'
+        os.makedirs(log_dir, exist_ok=True)
+        self.__writer = writer.SummaryWriter(log_dir)
+
     def __load_data(self):
         self.__train_loader = DataLoader(
             torchvision
@@ -53,6 +58,7 @@ class Train:
                    download=True,
                    transform=torchvision.transforms.Compose([
                        torchvision.transforms.ToTensor(),
+                       torchvision.transforms.Resize((64, 64), antialias=True), # type: ignore
                        torchvision.transforms.Normalize(
                            (0.1307,), (0.3081,))
                    ])),
@@ -70,6 +76,7 @@ class Train:
                    download=True,
                    transform=torchvision.transforms.Compose([
                        torchvision.transforms.ToTensor(),
+                       torchvision.transforms.Resize((64, 64), antialias=True), # type: ignore
                        torchvision.transforms.Normalize(
                            (0.1307,), (0.3081,))
                    ])),
@@ -80,7 +87,6 @@ class Train:
         )
 
     def train(self, epoch: int):
-        # for type hint
         assert isinstance(self.__train_loader.dataset,
                           torchvision.datasets.MNIST)
         assert isinstance(self.__test_loader.dataset,
@@ -103,20 +109,26 @@ class Train:
             self.__optimizer.step()
 
             if batch_idx % Train.LOG_INTERVAL == 0:
-
                 bar.update(Train.LOG_INTERVAL)
                 bar.set_postfix(loss=f'{loss.item():.6f}')
 
                 self.__train_losses.append(loss.item())
                 self.__train_counter.append((batch_idx * 64) +
                                             ((epoch - 1) * len(self.__train_loader.dataset)))
+
+                # 记录训练损失到TensorBoard
+                step = (batch_idx * len(self.__train_loader.dataset)) + \
+                       ((epoch - 1) * len(self.__train_loader.dataset))
+                self.__writer.add_scalar('Train/Loss', loss.item(), step)
+
                 os.makedirs('out/MNIST', exist_ok=True)
                 torch.save(self.__module.state_dict(), 'out/MNIST/model.pth')
                 torch.save(self.__optimizer.state_dict(),
                            'out/MNIST/optimizer.pth')
 
-    def test(self):
-        # for type hint
+        bar.close()
+
+    def test(self, epoch):
         assert isinstance(self.__train_loader.dataset,
                           torchvision.datasets.MNIST)
         assert isinstance(self.__test_loader.dataset,
@@ -139,22 +151,26 @@ class Train:
                 correct += pred.eq(target.data.view_as(pred)).sum()
         test_loss /= len(self.__test_loader.dataset)
         self.__test_losses.append(test_loss)
+
+        self.__writer.add_scalar('Test/Loss', test_loss, epoch)
+        self.__writer.add_scalar(
+            'Test/Accuracy', 100. * correct / len(self.__test_loader.dataset), epoch)
+
         print('\n[INFO] Test set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
             test_loss, correct, len(self.__test_loader.dataset),
             100. * correct / len(self.__test_loader.dataset)))
 
     def __call__(self, show_fig: bool = True):
-        # for type hint
         assert isinstance(self.__train_loader.dataset,
                           torchvision.datasets.MNIST)
         assert isinstance(self.__test_loader.dataset,
                           torchvision.datasets.MNIST)
 
-        self.test()
+        self.test(epoch=0)
 
         for epoch in range(1, self.__epochs + 1):
             self.train(epoch)
-            self.test()
+            self.test(epoch)
 
         if show_fig:
             plt.figure()
@@ -190,4 +206,7 @@ class Train:
                 plt.yticks([])
             plt.show()
 
-        print("Train - Done\n")
+        # 关闭SummaryWriter
+        self.__writer.close()
+
+        print("[INFO] Train - Done\n")

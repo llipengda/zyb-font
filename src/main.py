@@ -17,4 +17,4 @@ def main(model_type: Literal['MNIST', 'HWDB', 'HWDB+MNIST'], force_train=False, 
 
 
 if __name__ == '__main__':
-    main('HWDB+MNIST')
+    main('MNIST')
