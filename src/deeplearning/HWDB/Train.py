@@ -26,6 +26,7 @@ class Train:
     LEARNING_RATE = 0.01
     LOG_INTERVAL = 100
     NUM_WORKERS = 16
+    WEIGHT_DECAY = 0.001
 
     def __init__(self, epochs=10, with_mnist=False):
         self.__epochs = epochs
@@ -38,7 +39,7 @@ class Train:
 
         self.__module = Module(len(self.__char_dict)).to(self.__device)
         self.__optimizer = torch.optim.SGD(
-            self.__module.parameters(), lr=Train.LEARNING_RATE)
+            self.__module.parameters(), lr=Train.LEARNING_RATE, weight_decay=Train.WEIGHT_DECAY)
         self.__criterion = nn.CrossEntropyLoss()
 
         log_dir = f'logs/HWDB/{datetime.now()}'
@@ -53,7 +54,7 @@ class Train:
                 torch.load('out/HWDB/optimizer.pth'))
 
         assert isinstance(self.__train_loader.dataset, HWDB) \
-               or isinstance(self.__train_loader.dataset, ConcatDataset)
+            or isinstance(self.__train_loader.dataset, ConcatDataset)
 
         self.__train_losses: list[float] = []
         self.__train_counter: list[int] = []
@@ -100,10 +101,10 @@ class Train:
         # for type hint
         assert isinstance(self.__train_loader.dataset,
                           HWDB) \
-               or isinstance(self.__train_loader.dataset, ConcatDataset)
+            or isinstance(self.__train_loader.dataset, ConcatDataset)
         assert isinstance(self.__test_loader.dataset,
                           HWDB) \
-               or isinstance(self.__test_loader.dataset, ConcatDataset)
+            or isinstance(self.__test_loader.dataset, ConcatDataset)
 
         self.__module.train()
 
@@ -121,6 +122,10 @@ class Train:
             data, target = data.to(self.__device), target.to(self.__device)
             output = self.__module(data)
             loss: torch.Tensor = self.__criterion(output, target)
+            l2_regularization = 0
+            for param in self.__module.parameters():
+                l2_regularization += torch.norm(param, 2)
+            loss += Train.WEIGHT_DECAY * l2_regularization
             total += target.size(0)
             correct += (output.argmax(1) == target).sum().item()
             loss.backward()
@@ -129,7 +134,8 @@ class Train:
             if batch_idx % Train.LOG_INTERVAL == 0:
                 if (minus := (batch_idx // Train.LOG_INTERVAL + 1) * Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN - len(
                         self.__train_loader) * Train.BATCH_SIZE_TRAIN) > 0:
-                    bar.update(Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN - minus)
+                    bar.update(Train.LOG_INTERVAL *
+                               Train.BATCH_SIZE_TRAIN - minus)
                 else:
                     bar.update(Train.LOG_INTERVAL * Train.BATCH_SIZE_TRAIN)
                 bar.set_postfix(loss=f'{loss.item():.6f}',
@@ -139,8 +145,10 @@ class Train:
                 self.__train_counter.append((batch_idx * self.BATCH_SIZE_TRAIN) +
                                             ((epoch - 1) * len(self.__train_loader.dataset)))
 
-                self.__writer.add_scalar('Train/Loss', loss.item(), len(self.__train_counter))
-                self.__writer.add_scalar('Train/Accuracy', (correct / total) * 100., len(self.__train_counter))
+                self.__writer.add_scalar(
+                    'Train/Loss', loss.item(), len(self.__train_counter))
+                self.__writer.add_scalar(
+                    'Train/Accuracy', (correct / total) * 100., len(self.__train_counter))
 
                 os.makedirs('out/HWDB', exist_ok=True)
                 torch.save(self.__module.state_dict(), 'out/HWDB/model.pth')
@@ -157,12 +165,13 @@ class Train:
         # for type hint
         assert isinstance(self.__train_loader.dataset,
                           HWDB) \
-               or isinstance(self.__train_loader.dataset, ConcatDataset)
+            or isinstance(self.__train_loader.dataset, ConcatDataset)
         assert isinstance(self.__test_loader.dataset,
                           HWDB) \
-               or isinstance(self.__test_loader.dataset, ConcatDataset)
+            or isinstance(self.__test_loader.dataset, ConcatDataset)
 
-        bar = tqdm(total=len(self.__test_loader) * Train.BATCH_SIZE_TEST, desc=f'Test {epoch}')
+        bar = tqdm(total=len(self.__test_loader) *
+                   Train.BATCH_SIZE_TEST, desc=f'Test {epoch}')
 
         self.__module.eval()
         total = 0
@@ -183,16 +192,17 @@ class Train:
                 bar.set_postfix(
                     correct=f'{correct}/{total}({(correct / total) * 100.:.6f}%)')
 
-        self.__writer.add_scalar('Test/Accuracy', (correct / total) * 100., epoch)
+        self.__writer.add_scalar(
+            'Test/Accuracy', (correct / total) * 100., epoch)
 
     def __call__(self, show_fig: bool = True):
         # for type hint
         assert isinstance(self.__train_loader.dataset,
                           HWDB) \
-               or isinstance(self.__train_loader.dataset, ConcatDataset)
+            or isinstance(self.__train_loader.dataset, ConcatDataset)
         assert isinstance(self.__test_loader.dataset,
                           HWDB) \
-               or isinstance(self.__test_loader.dataset, ConcatDataset)
+            or isinstance(self.__test_loader.dataset, ConcatDataset)
 
         self.test(0)
 
