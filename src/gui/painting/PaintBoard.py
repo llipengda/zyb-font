@@ -1,13 +1,13 @@
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtGui import QPixmap, QPainter, QPaintEvent, QMouseEvent, QPen, QColor
-from PyQt5.QtCore import Qt, QPoint, QSize
+from PySide6.QtWidgets import QWidget
+from PySide6.QtGui import QPixmap, QPainter, QPaintEvent, QMouseEvent, QPen, QColor
+from PySide6.QtCore import Qt, QPoint, QSize
 
 
 class PaintBoard(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self):
 
-        super().__init__(parent)
+        super().__init__()
 
         self.__currentPos = QPoint(0, 0)
         self.__lastPos = QPoint(0, 0)
@@ -20,6 +20,7 @@ class PaintBoard(QWidget):
     def __init_data(self):
 
         self.__size = QSize(480, 460)
+        self.setGeometry(0,0,480,460)
 
         # 新建QPixmap作为画板，尺寸为__size
         self.__board = QPixmap(self.__size)
