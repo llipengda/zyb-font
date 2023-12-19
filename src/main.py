@@ -13,7 +13,7 @@ os.chdir(root_path)
 
 def main(model_type: Literal['MNIST', 'HWDB', 'HWDB+MNIST'], force_train=False, epochs=10):
     deeplearning.ensure_model(model_type, force_train, epochs)
-    gui.paint.run(model_type)
+    gui.run()
 
 
 if __name__ == '__main__':
