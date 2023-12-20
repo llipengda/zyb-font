@@ -1,9 +1,11 @@
+import gui.static.data as static
+
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import *
-from PySide6.QtCore import *
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QFrame
+
 from gui.menus import LeftMenu
 from gui.rightcontent import RightContent
-import static.data as static
 
 
 class MainWindow(QWidget):
@@ -12,8 +14,9 @@ class MainWindow(QWidget):
 
         self.setWindowTitle(static.data["mainwindow"]["TITLE"])
         self.setMinimumSize(748, 480)
-        self.setStyleSheet("background:{};border-radius:10px;".format(static.data["mainwindow"]["bg"]))
-        self.setWindowFlag(Qt.FramelessWindowHint)
+        self.setStyleSheet(
+            "background:{};border-radius:10px;".format(static.data["mainwindow"]["bg"]))
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.setWindowIcon(QIcon(static.data["mainwindow"]["ICON"]))
 
         self.left = LeftMenu()
@@ -31,5 +34,3 @@ class MainWindow(QWidget):
 
         self.left.msg.connect(self.right.nav_group.get_label)
         self.left.msg.connect(self.right.get_menu_index)
-
-

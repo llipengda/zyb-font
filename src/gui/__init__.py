@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import QApplication
 
 from gui.mainwindow import MainWindow
 

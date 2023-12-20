@@ -1,4 +1,9 @@
-from gui.basic.widgets import *
+import gui.static.data as static
+
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLineEdit
+
+from gui.basic.widgets import Button
 
 
 class Search(QWidget):
@@ -6,7 +11,7 @@ class Search(QWidget):
         super().__init__()
 
         self.layout = QHBoxLayout()
-        self.layout.setAlignment(Qt.AlignCenter)
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.search = QLineEdit(self)
         self.search.setStyleSheet(static.data["common"]["style"])
@@ -20,5 +25,3 @@ class Search(QWidget):
         self.layout.setContentsMargins(10, 10, 10, 10)
 
         self.setLayout(self.layout)
-
-

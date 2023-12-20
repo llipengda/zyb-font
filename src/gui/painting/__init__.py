@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import *
-from gui.painting.PaintBoard import PaintBoard
+from PySide6.QtWidgets import QWidget, QGroupBox, QHBoxLayout
+
 from gui.painting.Widget import Widget
 
 
