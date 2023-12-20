@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import *
-from PySide6.QtCore import *
-from PySide6.QtGui import *
-import static.data as static
-import os
+import gui.static.data as static
+
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QTextEdit
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QTextCursor
+
 
 class License(QWidget):
     def __init__(self):
@@ -18,13 +19,13 @@ class License(QWidget):
         self.license.setStyleSheet(static.data["license"]["style"])
 
         self.cursor = self.license.textCursor()
-        self.cursor.movePosition(QTextCursor.Start)
+        self.cursor.movePosition(QTextCursor.MoveOperation.Start)
         while not self.cursor.atEnd():
-            self.cursor.select(QTextCursor.LineUnderCursor)
+            self.cursor.select(QTextCursor.SelectionType.LineUnderCursor)
             block = self.cursor.blockFormat()
-            block.setAlignment(Qt.AlignCenter)
+            block.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.cursor.mergeBlockFormat(block)
-            self.cursor.movePosition(QTextCursor.NextBlock)
+            self.cursor.movePosition(QTextCursor.MoveOperation.NextBlock)
 
         self.layout.addWidget(self.license)
 

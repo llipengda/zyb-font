@@ -20,7 +20,7 @@ class PaintBoard(QWidget):
     def __init_data(self):
 
         self.__size = QSize(480, 460)
-        self.setGeometry(0,0,480,460)
+        self.setGeometry(0, 0, 480, 460)
 
         # 新建QPixmap作为画板，尺寸为__size
         self.__board = QPixmap(self.__size)
@@ -106,7 +106,7 @@ class PaintBoard(QWidget):
 
         self.update()  # 更新显示
 
-    def mouseReleaseEvent(self, mouse_event: QMouseEvent): 
+    def mouseReleaseEvent(self, mouse_event: QMouseEvent):
         """鼠标释放事件 重写自QWidget
 
         Args:

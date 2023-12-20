@@ -1,6 +1,8 @@
-from PySide6.QtWidgets import *
-from PySide6.QtCore import *
-import static.data as static
+import gui.static.data as static
+
+from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout
+from PySide6.QtCore import Slot
+
 from gui.basic.widgets import MiniLabel, FullLabel, CloseLabel, TopBarGroup
 
 
@@ -9,7 +11,8 @@ class TopBar(QWidget):
         super().__init__()
 
         self.group = TopBarGroup()
-        self.group.setStyleSheet("background-color:{};border-radius:4px;".format(static.data["topnav"]["bg"]))
+        self.group.setStyleSheet(
+            "background-color:{};border-radius:4px;".format(static.data["topnav"]["bg"]))
         self.group.setFixedHeight(52)
         self.layout = QHBoxLayout()
 

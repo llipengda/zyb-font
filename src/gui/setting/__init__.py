@@ -1,6 +1,4 @@
-from PySide6.QtWidgets import *
-from PySide6.QtCore import *
-from PySide6.QtGui import *
+from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout
 
 
 class Setting(QWidget):
@@ -10,5 +8,3 @@ class Setting(QWidget):
         self.layout = QVBoxLayout()
 
         self.group.setLayout(self.layout)
-
-

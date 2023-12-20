@@ -1,7 +1,7 @@
-from PySide6.QtCore import *
-from PySide6.QtWidgets import *
+from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel
 
-import static.data as static
+import gui.static.data as static
 
 
 class Description(QWidget):
