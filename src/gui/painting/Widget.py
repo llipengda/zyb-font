@@ -1,8 +1,9 @@
 import os
 import uuid
 
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QSplitter
-from gui.basic.widgets import *
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QSplitter, QWidget
+
+from gui.basic.widgets import Button, Label, Slider, on_pressed
 from gui.painting.PaintBoard import PaintBoard
 
 
@@ -44,9 +45,11 @@ class Widget(QWidget):
 
         self.__slider_pen = Slider()
         self.__slider_pen.setParent(self)
-        self.__slider_pen.valueChanged[int].connect(self.slider_drag)
-        self.__slider_pen.sliderPressed.connect(lambda: self.__value.setVisible(True))
-        self.__slider_pen.sliderReleased.connect(lambda: self.__value.setVisible(False))
+        self.__slider_pen.valueChanged.connect(self.slider_drag)
+        self.__slider_pen.sliderPressed.connect(
+            lambda: self.__value.setVisible(True))
+        self.__slider_pen.sliderReleased.connect(
+            lambda: self.__value.setVisible(False))
         sub_layout.addWidget(self.__slider_pen)
 
         self.__value = Label("25")
@@ -109,7 +112,7 @@ class Widget(QWidget):
         proportion = (value - left) / maximum
 
         x, y, width, height = self.__slider_pen.geometry().x(), self.__slider_pen.geometry().y(), \
-                              self.__slider_pen.geometry().width(), self.__slider_pen.geometry().height()
+            self.__slider_pen.geometry().width(), self.__slider_pen.geometry().height()
         val = proportion * width
 
         self.__value.move(x + val - self.__value.width() // 2, y + height)

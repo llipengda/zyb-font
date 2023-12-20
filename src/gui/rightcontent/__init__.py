@@ -1,12 +1,12 @@
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedLayout
 
 from gui.about import About
 from gui.file import File
 from gui.painting import Painting
 from gui.setting import Setting
 from gui.topnav import TopBar
-import static.data as static
+import gui.static.data as static
 
 
 class RightContent(QWidget):

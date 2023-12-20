@@ -1,8 +1,8 @@
-from PySide6.QtWidgets import *
-from PySide6.QtCore import *
-from PySide6.QtGui import *
+from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QCheckBox, QSlider, QFrame, QGroupBox
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 
-import static.data as static
+import gui.static.data as static
 
 
 def on_pressed(widget: QWidget):
@@ -63,7 +63,7 @@ class Slider(QSlider):
         super().__init__()
         self.setStyleSheet(static.data["slider"])
         self.setOrientation(Qt.Orientation.Horizontal)
-        self.setTickPosition(QSlider.TicksBelow)
+        self.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.setTickInterval(5)
         self.setMaximum(50)
         self.setMinimum(0)
@@ -131,10 +131,10 @@ class FullLabel(QLabel):
     def mousePressEvent(self, event):
         if not self.flag:
             self.flag = True
-            self.parent().parent().setWindowState(Qt.WindowFullScreen)
+            self.parent().parent().setWindowState(Qt.WindowState.WindowFullScreen)
         else:
             self.flag = False
-            self.parent().parent().setWindowState(Qt.WindowNoState)
+            self.parent().parent().setWindowState(Qt.WindowState.WindowNoState)
 
 
 class CloseLabel(QLabel):
