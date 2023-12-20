@@ -1,11 +1,11 @@
 import os
-from gui.basic.widgets import *
-from PySide6.QtWidgets import *
-from PySide6.QtCore import *
-from PySide6.QtGui import *
+from gui.basic.widgets import on_pressed
+from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QLabel
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtGui import QPixmap, QKeySequence, QShortcut
 from gui.file.Search import Search
 from gui.file.Show import Show
-import static.data as static
+import gui.static.data as static
 
 
 class File(QWidget):
@@ -19,7 +19,8 @@ class File(QWidget):
 
         self.layout.addWidget(self.__search)
         self.__search.search_button.pressed.connect(self.on_button_clicked)
-        self.enter = QShortcut(QKeySequence(Qt.Key_Return), self.__search, None)
+        self.enter = QShortcut(QKeySequence(
+            Qt.Key.Key_Return), self.__search, None)
         self.enter.activated.connect(self.on_button_clicked)
 
         self.__show = Show()
@@ -56,8 +57,8 @@ class File(QWidget):
             remove.destroy()
 
         if len(image_files) == 0:
-            tip = QLabel("什么也没有搜到哦",self)
-            tip.setAlignment(Qt.AlignCenter)
+            tip = QLabel("什么也没有搜到哦", self)
+            tip.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.__show.show_layout.addWidget(tip, 0, 0)
             return
 
@@ -74,7 +75,7 @@ class File(QWidget):
                 image_name = image_name[:8] + "..."
 
             pic_name = QLabel(image_name, self)
-            pic_name.setAlignment(Qt.AlignCenter)
+            pic_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             self.__show.show_layout.addWidget(pic, row, col)
             self.__show.show_layout.addWidget(pic_name, row + 1, col)

@@ -1,6 +1,9 @@
-from gui.basic.widgets import *
+import gui.static.data as static
 
-import static.data as static
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QLabel, QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QFrame
+
+from gui.basic.widgets import Label, MenuFrame
 
 
 class LeftMenu(QWidget):
@@ -32,7 +35,8 @@ class LeftMenu(QWidget):
 
         for index, item in enumerate(self.menu):
             self.menu_bg = MenuFrame()
-            self.menu_bg.mousePressEvent = lambda event, index=index: self.set_menu_bg(event, index)
+            self.menu_bg.mousePressEvent = lambda event, index=index: self.set_menu_bg(
+                event, index)
             self.menu_bg.setFixedSize(static.data["menu_bg"]["width"],
                                       static.data["menu_bg"]["height"])
             self.menu_bg.setContentsMargins(2, 2, 2, 0)
@@ -41,7 +45,8 @@ class LeftMenu(QWidget):
             self.menu_icon.setStyleSheet(
                 "background:url({}) no-repeat center center;".format(static.data["menu_icon"][item["type"]]))
             self.menu_label = Label(item["name"])
-            self.menu_label.setStyleSheet("color: #ffffff;font-size:16px;font-family:Microsoft YaHei;")
+            self.menu_label.setStyleSheet(
+                "color: #ffffff;font-size:16px;font-family:Microsoft YaHei;")
             self.menu_icon.setFixedSize(25, 25)
 
             self.menu_QH.addWidget(self.menu_icon)
@@ -68,7 +73,7 @@ class LeftMenu(QWidget):
         self.menu_btn_icon = QFrame()
         self.menu_btn_icon.setStyleSheet(
             "background:url({}) no-repeat center center;".format(static.data["menu_btn"]["open"]))
-        self.menu_btn_icon.setFixedSize(36,36)
+        self.menu_btn_icon.setFixedSize(36, 36)
         self.menu_btn_layout.addWidget(self.menu_btn_icon)
         self.menu_btn_frame.setLayout(self.menu_btn_layout)
         self.menu_layout.addWidget(self.menu_btn_frame)
@@ -87,7 +92,8 @@ class LeftMenu(QWidget):
             for i in range(self.menus_layout.count()):
                 self.menus_layout.itemAt(i).widget().setFixedSize(static.data["folded_menu_icon"]["width"],
                                                                   static.data["folded_menu_icon"]["height"])
-                self.menus_layout.itemAt(i).widget().findChildren(QLabel)[0].setVisible(False)
+                self.menus_layout.itemAt(i).widget().findChildren(QLabel)[
+                    0].setVisible(False)
         else:
             # 改变logo
             self.menu_logo.setStyleSheet(
@@ -98,7 +104,8 @@ class LeftMenu(QWidget):
             for i in range(self.menus_layout.count()):
                 self.menus_layout.itemAt(i).widget().setFixedSize(static.data["menu_bg"]["width"],
                                                                   static.data["menu_bg"]["height"])
-                self.menus_layout.itemAt(i).widget().findChildren(QLabel)[0].setVisible(True)
+                self.menus_layout.itemAt(i).widget().findChildren(QLabel)[
+                    0].setVisible(True)
 
     # 点击展开收起事件
     def toggle_menu(self, event):
@@ -122,7 +129,8 @@ class LeftMenu(QWidget):
                 self.menus_layout.itemAt(i).widget().flag = True
                 self.menus_layout.itemAt(i).widget().setStyleSheet("background-color: {};border-radius:4px;".format(
                     static.data["menu_bg"]["press"]))
-                dict_data = {"label": self.menus_layout.itemAt(i).widget().layout().itemAt(1).widget().text(),"index": index}
+                dict_data = {"label": self.menus_layout.itemAt(
+                    i).widget().layout().itemAt(1).widget().text(), "index": index}
                 self.change_label(dict_data)
 
             elif i != index:
@@ -132,4 +140,3 @@ class LeftMenu(QWidget):
 
     def change_label(self, arg):
         self.msg.emit(arg)
-
