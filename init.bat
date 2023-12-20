@@ -24,12 +24,16 @@ exit /b 1
 echo 当前 Python 版本为 %python_version%
 echo.
 echo 创建虚拟环境
-%PYTHON% -m venv venv
-if %errorlevel% neq 0 (
-    echo 错误：创建虚拟环境失败
-    exit /b 1
+if exist venv (
+    echo SKIP
+) else (
+    %PYTHON% -m venv venv
+    if %errorlevel% neq 0 (
+        echo 错误：创建虚拟环境失败
+        exit /b 1
+    )
+    echo OK
 )
-echo OK
 echo.
 echo 激活虚拟环境
 call venv\Scripts\activate.bat

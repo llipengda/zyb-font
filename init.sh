@@ -9,11 +9,15 @@ next() {
     echo "当前 Python 版本为 $python_version"
     echo ""
     echo "创建虚拟环境"
-    if ! "$PYTHON" -m venv venv; then
-        echo "错误：创建虚拟环境失败"
-        exit 1
+    if [[ -d "venv" ]]; then
+        echo "SKIP"
+    else
+        if ! "$PYTHON" -m venv venv; then
+            echo "错误：创建虚拟环境失败"
+            exit 1
+        fi
+        echo "OK"
     fi
-    echo "OK"
     echo ""
     echo "激活虚拟环境"
     # shellcheck disable=SC1091

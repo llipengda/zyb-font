@@ -7,12 +7,16 @@ function Next {
     Write-Host "当前 Python 版本为 $python_version"
     Write-Host ""
     Write-Host "创建虚拟环境"
-    & $PYTHON -m venv venv
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "错误：创建虚拟环境失败"
-        exit 1
+    if (Test-Path .\venv) {
+        Write-Host "SKIP"
+    } else {
+        & $PYTHON -m venv venv
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "错误：创建虚拟环境失败"
+            exit 1
+        }
+        Write-Host "OK"
     }
-    Write-Host "OK"
     Write-Host ""
     Write-Host "激活虚拟环境"
     . .\venv\Scripts\Activate
