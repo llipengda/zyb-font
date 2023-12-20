@@ -22,6 +22,16 @@ def run(epochs=10):
 
 
 def run_mnist(epochs=10):
+    if not os.path.exists('data/HWDB/test') or not os.path.exists('data/HWDB/train') \
+            or len(os.listdir('data/HWDB/test')) == 0 or len(os.listdir('data/HWDB/train')) == 0:
+
+        if not os.path.exists('data/HWDB/raw/HWDB1.1trn_gnt') or not os.path.exists('data/HWDB/raw/HWDB1.1tst_gnt') \
+                or len(os.listdir('data/HWDB/raw/HWDB1.1trn_gnt')) == 0 \
+                or len(os.listdir('data/HWDB/raw/HWDB1.1tst_gnt')) == 0:
+            fetch_data()
+
+        load_img_from_gnt()
+    
     if not os.path.exists('data/HWDB/MNIST/test') or not os.path.exists('data/HWDB/MNIST/train') \
             or len(os.listdir('data/HWDB/MNIST/test')) == 0 or len(os.listdir('data/HWDB/MNIST/train')) == 0:
         load_mnist_data()
