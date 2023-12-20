@@ -6,3 +6,4 @@ venv/
 draw/
 __pycache__/
 logs/
+imgs/
