@@ -1,6 +1,7 @@
 data/**/raw/
 data/**/test/
 data/**/train/
+data/**/**.png
 out/**/png/
 venv/
 draw/
