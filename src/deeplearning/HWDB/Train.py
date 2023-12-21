@@ -234,7 +234,7 @@ class Train:
         with torch.no_grad():
             output = self.__module(example_data)
 
-        sim_hei = FontProperties(fname=PosixPath("font/SimHei.ttf"))
+        sim_hei = FontProperties(fname=PosixPath("fonts/SimHei.ttf"))
         for r in range(5):
             plt.figure()
             for i in range(6):
