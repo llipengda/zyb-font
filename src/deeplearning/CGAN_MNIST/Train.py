@@ -23,9 +23,9 @@ class DataLoaderX(DataLoader):
 
 
 class Train:
-    BATCH_SIZE = 24
-    NUM_WORKERS = 4
-    SAVE_INTERVAL = 30
+    BATCH_SIZE = 48
+    NUM_WORKERS = 8
+    SAVE_INTERVAL = 100
 
     NUM_FONTS = 7
     NUM_CHARACTERS = 10
@@ -38,12 +38,13 @@ class Train:
 
     LAMBDA_L1 = 50
 
-    def __init__(self, epochs=1201):
+    def __init__(self, epochs=1201, reuse_path: str | None = None):
         self.__epochs = epochs
         self.__load_data()
         self.__device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
         print("[INFO] Train - Using device:", self.__device)
+        self.__reuse_path = reuse_path
         self.__init_module()
         log_dir = f'logs/CGAN_MNIST/{str(datetime.now()).replace(":", "-")}/'
         os.makedirs(log_dir, exist_ok=True)
@@ -91,6 +92,22 @@ class Train:
             betas=(Train.BETA_1, Train.BETA_2),
             weight_decay=Train.WEIGHT_DECAY,
         )
+        
+        if self.__reuse_path is not None:
+            print(f"[INFO] Loading model from {self.__reuse_path}")
+            # 增加font和char的数量不影响G的结构，所以G可以在不同试验中重复使用
+            params = torch.load(self.__reuse_path, map_location="cpu")
+            try:
+                self.__G.load_state_dict(params["G"])
+                self.__D.load_state_dict(params["D"])
+                self.__CLSP.load_state_dict(params["CLSP"])
+                self.__CLSS.load_state_dict(params["CLSS"])
+                # 如果类别变化了，optimizer就算加载成功也会在step处报错
+                self.__optimizer_G.load_state_dict(params["optimizer_G"])
+                self.__optimizer_D.load_state_dict(params["optimizer_D"])
+                print("[INFO] Loading success")
+            except:
+                pass
 
     def train(self, epoch: int):
         epoch_reconstruction_loss = 0.0
@@ -252,5 +269,5 @@ class Train:
 
 
 if __name__ == '__main__':
-    train = Train(2401)
+    train = Train(2401, 'out/CGAN_MNIST/2200-2023-12-22 16-54-06.921635.pth')
     train()
