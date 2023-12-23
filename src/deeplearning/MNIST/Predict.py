@@ -12,8 +12,7 @@ from deeplearning.MNIST.Module import Module
 class Predict:
     def __init__(self):
         if not os.path.exists("out/MNIST/model.pth"):
-            self.__module = None
-            return
+            raise FileNotFoundError('out/MNIST/model.pth not found')
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print("[INFO] Predict - Using device:", device)
@@ -24,25 +23,19 @@ class Predict:
         self.__module = module
 
     def __call__(self, pic_url: str):
-        if not self.__module:
-            self.__init__()
-
-        assert isinstance(self.__module, Module)
-
-        img = Image.open(pic_url).convert('L')
+        img = Image.open(pic_url).convert('L') # type: Image.Image
         img = img.resize((64, 64))
         img = img.point(lambda x: 255 - x)
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.1307,), (0.3081,))
         ])
-        img_any: Any = transform(img)
-        img_tensor: torch.Tensor = img_any
-        img = img_tensor.unsqueeze(0)
+        img_tensor: torch.Tensor = transform(img).unsqueeze(0)
 
         with torch.no_grad():
-            output: torch.Tensor = self.__module(
-                img.to(self.__device)).to(self.__device)
+            output, _  = self.__module(
+                img_tensor.to(self.__device))
+            output = output.to(self.__device)
 
         probabilities = f.softmax(output[0], dim=0)
         predicted_class = torch.argmax(probabilities).item()

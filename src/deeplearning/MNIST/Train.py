@@ -102,7 +102,7 @@ class Train:
             output: torch.Tensor
 
             data, target = data.to(self.__device), target.to(self.__device)
-            output = self.__module(data)
+            output, _ = self.__module(data)
             self.__optimizer.zero_grad()
             loss = f.nll_loss(output, target)
             loss.backward()
@@ -144,7 +144,7 @@ class Train:
                 output: torch.Tensor
                 data, target = data.to(
                     self.__device), target.to(self.__device)
-                output = self.__module(data)
+                output, _ = self.__module(data)
                 test_loss += f.nll_loss(output,
                                         target, reduction='sum').item()
                 pred = output.data.max(1, keepdim=True)[1]
@@ -191,7 +191,7 @@ class Train:
         example_data, example_targets = example_data.to(
             self.__device), example_targets.to(self.__device)
         with torch.no_grad():
-            output = self.__module(example_data)
+            output, _ = self.__module(example_data)
 
         if show_fig:
             plt.figure()
