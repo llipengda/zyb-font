@@ -32,13 +32,13 @@ class Generate:
             style_img).unsqueeze(0).to(self.__device)
         with torch.no_grad():
             out: torch.Tensor = self.__model(protype, style)[0]
-            show_tensor(out.squeeze(0).cpu())
+            show_tensor(out.squeeze(0).cpu(), 'out.png')
 
 
 if __name__ == '__main__':
     generate = Generate(
-        r'out/CGAN_MNIST/2400-2023-12-22 17-29-34.109559.pth')
+        r'/root/autodl-tmp/zyb-font/out/CGAN_MNIST/2100-2023-12-23 15-47-20.041305.pth')
     generate(
-        r'data/CGAN_MNIST/SIMHEI.TTF/4.png',
-        r'data/CGAN_MNIST/BOOKOSBI.TTF/6.png',
+        r'data/CGAN_MNIST/SIMHEI.TTF/9.png',
+        r'draw/8.jpg',
     )
