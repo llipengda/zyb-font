@@ -2,7 +2,7 @@ data/**/raw/
 data/**/test/
 data/**/train/
 data/**/**.png
-out/**/png/
+out/
 venv/
 draw/
 __pycache__/
