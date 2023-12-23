@@ -5,7 +5,7 @@ from torch import nn
 
 
 class ConvBNRelu(nn.Module):
-    def __init__(self, in_c, out_c, ks=5, pad=2, s=2, bn=False):
+    def __init__(self, in_c: int, out_c: int, ks=5, pad=2, s=2, bn=False):
         super(ConvBNRelu, self).__init__()
         conv = nn.Conv2d(in_c, out_c, kernel_size=ks, padding=pad, stride=s)
         relu = nn.ReLU(inplace=False)
@@ -25,7 +25,7 @@ class ConvBNRelu(nn.Module):
 
 # 这里的ks到底设置多少，论文里面是5，但是5跑不通，可能跟pad有关？
 class DeConvBNRelu(nn.Module):
-    def __init__(self, in_c, out_c, ks=6, pad=2, s=2, bn=False):
+    def __init__(self, in_c: int, out_c: int, ks=6, pad=2, s=2, bn=False):
         super(DeConvBNRelu, self).__init__()
         conv = nn.ConvTranspose2d(
             in_c, out_c, kernel_size=ks, padding=pad, stride=s
@@ -72,8 +72,8 @@ class ResBlock(nn.Module):
         self.conv1 = ConvBNRelu(in_c, out_c, ks=3, pad=1, s=1, bn=True)
         self.conv2 = ConvBNRelu(out_c, out_c, ks=3, pad=1, s=1, bn=True)
 
-    def forward(self, x):
-        out = self.conv1(x)
+    def forward(self, x) -> torch.Tensor:
+        out = self.conv1(x) # type: torch.Tensor
         out = self.conv2(out)
         out = out + x
         return out
@@ -102,8 +102,8 @@ class Generater(nn.Module):
         self.fc2 = nn.Linear(512, num_characters)
 
     def forward(self, lx, rx):
-        lout = self.left(lx)
-        rout = self.right(rx)
+        lout = self.left(lx) # type: list[torch.Tensor]
+        rout = self.right(rx) # type: list[torch.Tensor]
         lout_0 = self.left_1(lout[0])
         lout_1 = self.left_2(lout[1])
         lout_2 = self.left_3(lout[2])
@@ -119,7 +119,7 @@ class Generater(nn.Module):
         de_2 = self.deconv3(torch.cat([lout_3, de_1, rout_3], dim=1))
         de_3 = self.deconv4(torch.cat([lout_2, de_2, rout_2], dim=1))
         de_4 = self.deconv5(torch.cat([lout_1, de_3], dim=1))
-        de_5 = self.deconv6(torch.cat([lout_0, de_4], dim=1))
+        de_5 = self.deconv6(torch.cat([lout_0, de_4], dim=1)) # type: torch.Tensor
 
         # cls_left = self.fc1(lout[5])
         # cls_right = self.fc2(rout[5])
