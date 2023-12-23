@@ -105,19 +105,21 @@ class GenerationLoss(nn.Module):
 
     def forward(
         self,
-        out,
-        out_real,
-        real_label,
-        real_style_label,
-        char_label,
-        x_fake,
-        x_real,
-        encoder_out_real_left,
-        encoder_out_fake_left,
-        encoder_out_real_right,
-        encoder_out_fake_right,
-        cls_enc_p=None,
-        cls_enc_s=None,
+        out: list[torch.Tensor],
+        out_real: list[torch.Tensor],
+        features: list[torch.Tensor],
+        features_real: list[torch.Tensor],
+        real_label: torch.Tensor,
+        real_style_label: torch.Tensor,
+        char_label: torch.Tensor,
+        x_fake: torch.Tensor,
+        x_real: torch.Tensor,
+        encoder_out_real_left: torch.Tensor,
+        encoder_out_fake_left: torch.Tensor,
+        encoder_out_real_right: torch.Tensor,
+        encoder_out_fake_right: torch.Tensor,
+        cls_enc_p: torch.Tensor | None = None,
+        cls_enc_s: torch.Tensor | None = None,
     ):
         self.real_fake_loss = ALPHA * nn.BCELoss()(
             out[0], real_label.float().view(-1, 1)
@@ -135,25 +137,34 @@ class GenerationLoss(nn.Module):
 
         # 原论文里面使用训练好的vgg字符分类网络的中间特征来做
         # 这里为了省事，直接用的Discriminator的中间层特征
+        # self.reconstruction_loss2 = LAMBDA_PHI * (
+        #     nn.MSELoss()(out[3][0], out_real[3][0])
+        #     + nn.MSELoss()(out[3][1], out_real[3][1])
+        #     + nn.MSELoss()(out[3][2], out_real[3][2])
+        #     + nn.MSELoss()(out[3][3], out_real[3][3])
+        # )
         self.reconstruction_loss2 = LAMBDA_PHI * (
-            nn.MSELoss()(out[3][0], out_real[3][0])
-            + nn.MSELoss()(out[3][1], out_real[3][1])
-            + nn.MSELoss()(out[3][2], out_real[3][2])
-            + nn.MSELoss()(out[3][3], out_real[3][3])
+            nn.MSELoss()(features[0], features_real[0])
+            + nn.MSELoss()(features[1], features_real[1])
         )
+        
 
         self.left_constant_loss = PHI_P * nn.MSELoss()(
             encoder_out_real_left, encoder_out_fake_left
         )
+        
         self.right_constant_loss = PHI_R * nn.MSELoss()(
             encoder_out_real_right, encoder_out_fake_right
         )
+        
         self.content_category_loss = BETA_P * self.cls_criteron(
             cls_enc_p, char_label
         )  # category loss for content prototype encoder
+        
         self.style_category_loss = BETA_R * self.cls_criteron(
             cls_enc_s, real_style_label
         )
+        
         return (
             self.real_fake_loss
             + self.style_category_loss
