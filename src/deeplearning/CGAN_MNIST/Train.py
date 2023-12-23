@@ -25,7 +25,7 @@ class DataLoaderX(DataLoader):
 class Train:
     BATCH_SIZE = 48
     NUM_WORKERS = 8
-    SAVE_INTERVAL = 100
+    SAVE_INTERVAL = 300
 
     NUM_FONTS = 7
     NUM_CHARACTERS = 10
@@ -269,5 +269,5 @@ class Train:
 
 
 if __name__ == '__main__':
-    train = Train(2401)
+    train = Train(4801)
     train()

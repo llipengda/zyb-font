@@ -1,6 +1,7 @@
 import os
 import torch
 import random
+import matplotlib.pyplot as plt
 
 from PIL import Image
 from typing import Callable
@@ -27,24 +28,14 @@ class CGAN_MNIST(Dataset):
         self.__fonts.remove(self.__protype_font)
         self.__protype_imgs: list[Image.Image] = [read_img(
             f'data/CGAN_MNIST/{self.__protype_font}/{charater}.png') for charater in self.__charaters] * len(self.__fonts)
+        self.__protype_char_indices = [int(
+            character) for character in self.__charaters] * len(self.__fonts)
         self.__style_imgs: list[Image.Image] = [read_img(
             f'data/CGAN_MNIST/{font}/{charater}.png') for font in self.__fonts for charater in self.__charaters]
         self.__style_indices = [i for i in range(
             len(self.__fonts)) for _ in range(len(self.__charaters))]
         self.__character_indices = [i for _ in range(
             len(self.__fonts)) for i in range(len(self.__charaters))]
-        
-        ziped = list(zip(
-            self.__style_imgs,
-            self.__style_indices,
-            self.__character_indices
-        ))
-        random.shuffle(ziped)
-        style_imgs, style_indices, character_indices = zip(*ziped)
-        
-        self.__style_imgs = list(style_imgs)
-        self.__style_indices = list(style_indices) # type: list[int]
-        self.__character_indices = list(character_indices) # type: list[int]
 
     def __ensure_data(self):
         for font in self.__fonts:
@@ -55,21 +46,22 @@ class CGAN_MNIST(Dataset):
 
     def __getitem__(self, index: int):
         transform = self.__transform
+        random_style_index = random.randint(0, len(self.__style_indices) - 1)
         
         # 原型图像
         protype_img = transform(self.__protype_imgs[index])
         
         # 原型图像的字符索引
-        protype_index = index % len(self.__charaters)
+        protype_index = self.__protype_char_indices[index]
         
         # 风格图像
-        style_img = transform(self.__style_imgs[index])
+        style_img = transform(self.__style_imgs[random_style_index])
         
         # 风格图像的风格索引
-        style_index = self.__style_indices[index]
+        style_index = self.__style_indices[random_style_index]
         
         # 风格图像的字符索引
-        character_index = self.__character_indices[index]
+        character_index = self.__character_indices[random_style_index]
         
         # 真实图像
         real_img = transform(read_img(
@@ -88,10 +80,11 @@ class CGAN_MNIST(Dataset):
         return len(self.__fonts) * len(self.__charaters)
 
 
-def show_tensor(tensor: torch.Tensor):
-    import matplotlib.pyplot as plt
+def show_tensor(tensor: torch.Tensor, out_path: str | None = None):
     plt.imshow(tensor.permute((1, 2, 0)))
     plt.show()
+    if out_path is not None:
+        plt.savefig(out_path)
 
 
 if __name__ == '__main__':
