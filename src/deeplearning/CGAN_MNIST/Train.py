@@ -13,8 +13,9 @@ from torch.utils.tensorboard import writer
 
 
 from deeplearning.CGAN_MNIST.CGAN_MNIST import CGAN_MNIST
-from deeplearning.CGAN_MNIST.Module import CLSEncoderS, ClSEncoderP, Discriminator, Generater
+from deeplearning.CGAN_MNIST.modules import CLSEncoderS, ClSEncoderP, Discriminator, Generater
 from deeplearning.CGAN_MNIST.loss import DiscriminationLoss, GenerationLoss
+from deeplearning.MNIST.Module import Module as MNISTModule
 
 
 class DataLoaderX(DataLoader):
@@ -73,6 +74,8 @@ class Train:
         # 两个encoder后面的外接分类器
         self.__CLSP = ClSEncoderP(Train.NUM_CHARACTERS + 1).to(self.__device)
         self.__CLSS = CLSEncoderS(Train.NUM_FONTS + 1).to(self.__device)
+        
+        self.__CNN = MNISTModule().to(self.__device)
 
         self.__optimizer_G = optim.Adam(
             self.__G.parameters(),
@@ -165,6 +168,10 @@ class Train:
             x_fake, lout, rout = self.__G(x1, x2)
             out = self.__D(x_fake, x1, x2)
             out_real_ = self.__D(x_real, x1, x2)  # 加个下划线，避免跟后面重名
+            
+            with torch.no_grad():
+                _, features = self.__CNN(x_fake)
+                _, features_real = self.__CNN(x_real)
 
             # 两边encoder之后接一个分类器
             cls_enc_p = self.__CLSP(lout.view(-1, 512))
@@ -178,6 +185,8 @@ class Train:
             L_G = criterion_G(
                 out,
                 out_real_,
+                features,
+                features_real,
                 real_label,
                 real_style_label,
                 char_label,

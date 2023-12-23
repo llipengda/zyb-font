@@ -1,8 +1,9 @@
 import torch
 
 from torchvision import transforms
-from deeplearning.CGAN_MNIST.Module import Generater
+from PIL import Image
 
+from deeplearning.CGAN_MNIST.modules import Generater
 from deeplearning.CGAN_MNIST.CGAN_MNIST import read_img, show_tensor
 
 
@@ -32,13 +33,19 @@ class Generate:
             style_img).unsqueeze(0).to(self.__device)
         with torch.no_grad():
             out: torch.Tensor = self.__model(protype, style)[0]
-            show_tensor(out.squeeze(0).cpu(), 'out.png')
+            show_tensor(out.squeeze(0).cpu())
+            
+        normalized = torch.clamp(out.squeeze(0).cpu(), 0, 1)
+        PIL_image: Image.Image = transforms.ToPILImage()(normalized)
+        PIL_image.show()
+        PIL_image.save('out.png')
+        
 
 
 if __name__ == '__main__':
     generate = Generate(
-        r'/root/autodl-tmp/zyb-font/out/CGAN_MNIST/2100-2023-12-23 15-47-20.041305.pth')
+        r'out\CGAN_MNIST\9600-2023-12-24 03-15-15.635496.pth')
     generate(
-        r'data/CGAN_MNIST/SIMHEI.TTF/9.png',
-        r'draw/8.jpg',
+        r'data/CGAN_MNIST/SIMHEI.TTF/7.png',
+        r'draw/predict_3_d1f2194a-9963-11ee-b27e-103d1ccc0fd7.jpg',
     )

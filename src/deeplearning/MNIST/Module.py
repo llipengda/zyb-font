@@ -12,9 +12,12 @@ class Module(nn.Module):
         self.fc2 = nn.Linear(128, 10)
 
     def forward(self, x: torch.Tensor):
-        x = f.relu(f.max_pool2d(self.conv1(x), 2))
-        x = f.relu(f.max_pool2d(self.conv2(x), 2))
-        x = x.view(-1, 64 * 16 * 16)
-        x = f.relu(self.fc1(x))
-        x = self.fc2(x)
-        return f.log_softmax(x, dim=1)
+        features = []  # type: list[torch.Tensor]
+        x1 = f.relu(f.max_pool2d(self.conv1(x), 2))
+        features.append(x1)
+        x2 = f.relu(f.max_pool2d(self.conv2(x1), 2))
+        features.append(x2)
+        x3 = x2.view(-1, 64 * 16 * 16)
+        x4 = f.relu(self.fc1(x3))
+        x5 = self.fc2(x4)
+        return f.log_softmax(x5, dim=1), features
