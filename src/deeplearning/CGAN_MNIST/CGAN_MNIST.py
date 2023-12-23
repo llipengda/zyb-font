@@ -1,5 +1,6 @@
 import os
 import torch
+import random
 
 from PIL import Image
 from typing import Callable
@@ -32,6 +33,18 @@ class CGAN_MNIST(Dataset):
             len(self.__fonts)) for _ in range(len(self.__charaters))]
         self.__character_indices = [i for _ in range(
             len(self.__fonts)) for i in range(len(self.__charaters))]
+        
+        ziped = list(zip(
+            self.__style_imgs,
+            self.__style_indices,
+            self.__character_indices
+        ))
+        random.shuffle(ziped)
+        style_imgs, style_indices, character_indices = zip(*ziped)
+        
+        self.__style_imgs = list(style_imgs)
+        self.__style_indices = list(style_indices) # type: list[int]
+        self.__character_indices = list(character_indices) # type: list[int]
 
     def __ensure_data(self):
         for font in self.__fonts:
@@ -42,13 +55,25 @@ class CGAN_MNIST(Dataset):
 
     def __getitem__(self, index: int):
         transform = self.__transform
+        
+        # 原型图像
         protype_img = transform(self.__protype_imgs[index])
+        
+        # 原型图像的字符索引
         protype_index = index % len(self.__charaters)
+        
+        # 风格图像
         style_img = transform(self.__style_imgs[index])
+        
+        # 风格图像的风格索引
         style_index = self.__style_indices[index]
+        
+        # 风格图像的字符索引
         character_index = self.__character_indices[index]
+        
+        # 真实图像
         real_img = transform(read_img(
-            f'data/CGAN_MNIST/{self.__fonts[style_index]}/{self.__charaters[character_index]}.png'))
+            f'data/CGAN_MNIST/{self.__fonts[style_index]}/{self.__charaters[protype_index]}.png'))
         
         return (
             protype_img,
