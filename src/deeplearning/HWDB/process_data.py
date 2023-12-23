@@ -4,7 +4,7 @@ import pickle
 import threading
 import numpy as np
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageOps
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 from typing import Any, BinaryIO
@@ -46,6 +46,17 @@ def gnt_to_img(gnt_dir: str, img_dir: str, char_dict: dict[str, str]):
     def save_img(_label: int, _image: np.ndarray[Any, np.dtype[np.uint8]], _counter: int):
         decoded_label = struct.pack('>H', _label).decode('gb2312')
         img = Image.fromarray(_image)
+        img = ImageOps.invert(img)
+        img_gray = ImageOps.grayscale(img)
+        bbox = img_gray.getbbox()
+        img = img.crop(bbox)
+        new_image = Image.new('L', (64, 64), 255)
+        width, height = img.width, img.height
+        width = (64 - width) // 2
+        height = (64 - height) // 2
+        draw = ImageDraw.Draw(new_image)
+        draw.bitmap((width, height), img, fill=0)
+        img = new_image
         dir_name = os.path.join(img_dir, char_dict[str(decoded_label)])
         os.makedirs(dir_name, exist_ok=True)
         img.convert('RGB').save(dir_name + '/' + str(_counter) + '.png')
@@ -68,7 +79,7 @@ def generate_char_dict(data_dir: str, test_gnt_dir: str):
     use_char_dict_path = os.path.join(data_dir, 'use_char_dict')
 
     if not os.path.exists(char_dict_path) or not os.path.exists(use_char_dict_path):
-        print('Generating char dict...')
+        print('[INFO] Generating char dict...')
 
         all_imgs = TEST_IMG_CNT
         bar = tqdm(total=all_imgs, desc='Generating char dict')
