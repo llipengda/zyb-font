@@ -269,5 +269,5 @@ class Train:
 
 
 if __name__ == '__main__':
-    train = Train(2401, 'out/CGAN_MNIST/2200-2023-12-22 16-54-06.921635.pth')
+    train = Train(2401)
     train()
