@@ -120,7 +120,7 @@ class Train:
 
             self.__optimizer.zero_grad()
             data, target = data.to(self.__device), target.to(self.__device)
-            output = self.__module(data)
+            output, _ = self.__module(data)
             loss: torch.Tensor = self.__criterion(output, target)
             l2_regularization = 0
             for param in self.__module.parameters():
@@ -183,7 +183,7 @@ class Train:
                 output: torch.Tensor
                 data, target = data.to(
                     self.__device), target.to(self.__device)
-                output = self.__module(data)
+                output, _ = self.__module(data)
                 output = output.to(self.__device)
                 _, predicted = output.data.max(1)
                 total += target.size(0)
@@ -232,7 +232,7 @@ class Train:
         example_data, example_targets = example_data.to(
             self.__device), example_targets.to(self.__device)
         with torch.no_grad():
-            output = self.__module(example_data)
+            output, _ = self.__module(example_data)
 
         sim_hei = FontProperties(fname=PosixPath("fonts/SimHei.ttf"))
         for r in range(5):

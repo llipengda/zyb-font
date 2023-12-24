@@ -143,6 +143,7 @@ class GenerationLoss(nn.Module):
         #     + nn.MSELoss()(out[3][2], out_real[3][2])
         #     + nn.MSELoss()(out[3][3], out_real[3][3])
         # )
+        assert len(features) == len(features_real)
         tmp_loss = 0
         for i in range(len(features)):
             tmp_loss += nn.MSELoss()(features[i], features_real[i])

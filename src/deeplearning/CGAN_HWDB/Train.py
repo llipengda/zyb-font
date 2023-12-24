@@ -12,10 +12,10 @@ from prefetch_generator import BackgroundGenerator
 from torch.utils.tensorboard import writer
 
 
-from deeplearning.CGAN_MNIST.CGAN_MNIST import CGAN_MNIST
-from deeplearning.CGAN_MNIST.modules import CLSEncoderS, ClSEncoderP, Discriminator, Generater
-from deeplearning.CGAN_MNIST.loss import DiscriminationLoss, GenerationLoss
-from deeplearning.MNIST.Module import Module as MNISTModule
+from deeplearning.CGAN_HWDB.CGAN_HWDB import CGAN_HWDB
+from deeplearning.CGAN_HWDB.modules import CLSEncoderS, ClSEncoderP, Discriminator, Generater
+from deeplearning.CGAN_HWDB.loss import DiscriminationLoss, GenerationLoss
+from deeplearning.HWDB.Module import Module as HWDBModule
 
 
 class DataLoaderX(DataLoader):
@@ -24,12 +24,12 @@ class DataLoaderX(DataLoader):
 
 
 class Train:
-    BATCH_SIZE = 48
+    BATCH_SIZE = 128
     NUM_WORKERS = 8
     SAVE_INTERVAL = 300
 
-    NUM_FONTS = 7
-    NUM_CHARACTERS = 10
+    NUM_FONTS = 14
+    NUM_CHARACTERS = 3755
 
     BETA_1 = 0.5
     BETA_2 = 0.999
@@ -47,10 +47,10 @@ class Train:
         print("[INFO] Train - Using device:", self.__device)
         self.__reuse_path = reuse_path
         self.__init_module()
-        log_dir = f'logs/CGAN_MNIST/{str(datetime.now()).replace(":", "-")}/'
+        log_dir = f'logs/CGAN_HWDB/{str(datetime.now()).replace(":", "-")}/'
         os.makedirs(log_dir, exist_ok=True)
         self.__writer = writer.SummaryWriter(log_dir)
-        os.makedirs("out/CGAN_MNIST/", exist_ok=True)
+        os.makedirs("out/CGAN_HWDB/", exist_ok=True)
 
     def __load_data(self):
         self.__transform = transforms.Compose([
@@ -58,7 +58,7 @@ class Train:
             transforms.ToTensor(),
         ])
         self.__train_loader = DataLoaderX(
-            CGAN_MNIST(transform=self.__transform),
+            CGAN_HWDB(transform=self.__transform),
             batch_size=Train.BATCH_SIZE,
             shuffle=True,
             num_workers=Train.NUM_WORKERS,
@@ -75,7 +75,7 @@ class Train:
         self.__CLSP = ClSEncoderP(Train.NUM_CHARACTERS + 1).to(self.__device)
         self.__CLSS = CLSEncoderS(Train.NUM_FONTS + 1).to(self.__device)
         
-        self.__CNN = MNISTModule().to(self.__device)
+        self.__CNN = HWDBModule(Train.NUM_CHARACTERS).to(self.__device)
 
         self.__optimizer_G = optim.Adam(
             self.__G.parameters(),
@@ -117,7 +117,7 @@ class Train:
         epoch_lgs = 0.0
         epoch_lds = 0.0
 
-        assert isinstance(self.__train_loader.dataset, CGAN_MNIST)
+        assert isinstance(self.__train_loader.dataset, CGAN_HWDB)
 
         x_fake: torch.Tensor | None = None
         x_real: torch.Tensor | None = None
@@ -169,9 +169,13 @@ class Train:
             out = self.__D(x_fake, x1, x2)
             out_real_ = self.__D(x_real, x1, x2)  # 加个下划线，避免跟后面重名
             
+            assert x_fake is not None and x_real is not None
+            x_fake_rgb = torch.cat((x_fake, x_fake, x_fake), 1)
+            x_real_rgb = torch.cat((x_real, x_real, x_real), 1)
+            
             with torch.no_grad():
-                _, features = self.__CNN(x_fake)
-                _, features_real = self.__CNN(x_real)
+                _, features = self.__CNN(x_fake_rgb)
+                _, features_real = self.__CNN(x_real_rgb)
 
             # 两边encoder之后接一个分类器
             cls_enc_p = self.__CLSP(lout.view(-1, 512))
@@ -259,7 +263,7 @@ class Train:
         )
         if epoch % Train.SAVE_INTERVAL == 0:
             time_str = str(datetime.now()).replace(':', '-')
-            out_path = f"out/CGAN_MNIST/{epoch}-{time_str}.pth"
+            out_path = f"out/CGAN_HWDB/{epoch}-{time_str}.pth"
             torch.save(
                 {
                     "G": self.__G.state_dict(),
