@@ -143,10 +143,10 @@ class GenerationLoss(nn.Module):
         #     + nn.MSELoss()(out[3][2], out_real[3][2])
         #     + nn.MSELoss()(out[3][3], out_real[3][3])
         # )
-        self.reconstruction_loss2 = LAMBDA_PHI * (
-            nn.MSELoss()(features[0], features_real[0])
-            + nn.MSELoss()(features[1], features_real[1])
-        )
+        tmp_loss = 0
+        for i in range(len(features)):
+            tmp_loss += nn.MSELoss()(features[i], features_real[i])
+        self.reconstruction_loss2 = LAMBDA_PHI * tmp_loss
         
 
         self.left_constant_loss = PHI_P * nn.MSELoss()(

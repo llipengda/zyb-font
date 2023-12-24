@@ -45,7 +45,7 @@ class Predict:
 
         with torch.no_grad():
             output: torch.Tensor = self.__module(
-                img.to(self.__device)).to(self.__device)
+                img.to(self.__device))[0].to(self.__device)
 
         probabilities = f.softmax(output[0], dim=0)
         predicted_indices = torch.topk(probabilities, k=3).indices

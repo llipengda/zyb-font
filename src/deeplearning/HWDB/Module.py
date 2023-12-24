@@ -68,28 +68,45 @@ class Module(nn.Module):
         self.__weight_init()
 
     def forward(self, x: torch.Tensor):
+        features = [] # type: list[torch.Tensor]
         x1 = self.conv1(x)
+        features.append(x1)
         x2 = self.conv2(x1)
+        features.append(x2)
         x3 = self.conv3(x2)
+        features.append(x3)
         x4 = self.conv4(x3)
+        features.append(x4)
         x5 = self.conv5(x4)
+        features.append(x5)
         x6 = self.conv6(x5)
+        features.append(x6)
         x7 = self.conv7(x6)
+        features.append(x7)
         x8 = self.conv8(x7)
+        features.append(x8)
         x9 = self.conv9(x8)
+        features.append(x9)
         x9 = f.relu(x8 + x9)
         x10 = self.conv10(x9)
+        features.append(x10)
         x11 = self.conv11(x10)
+        features.append(x11)
         x11 = f.relu(x10 + x11)
         x12 = self.conv12(x11)
+        features.append(x12)
         x13 = self.conv13(x12)
+        features.append(x13)
         x14 = self.conv14(x13)
+        features.append(x14)
         x14 = f.relu(x13 + x14)
         x15 = self.conv15(x14)
+        features.append(x15)
         x16 = self.conv16(x15)
+        features.append(x16)
         x = x16.view(x16.size(0), -1)
         x = self.classifier(x)
-        return x
+        return x, features
 
     def __weight_init(self):
         for layer in self.modules():
