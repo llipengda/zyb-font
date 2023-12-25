@@ -25,10 +25,10 @@ class DataLoaderX(DataLoader):
 
 class Train:
     BATCH_SIZE = 128
-    NUM_WORKERS = 8
-    SAVE_INTERVAL = 300
+    NUM_WORKERS = 12
+    SAVE_INTERVAL = 10
 
-    NUM_FONTS = 14
+    NUM_FONTS = 80
     NUM_CHARACTERS = 3755
 
     BETA_1 = 0.5
@@ -39,9 +39,11 @@ class Train:
 
     LAMBDA_L1 = 50
 
-    def __init__(self, epochs=1201, reuse_path: str | None = None):
+    def __init__(self, epochs=1201, reuse_path: str | None = None, load_characters=50, load_fonts=15):
         self.__epochs = epochs
-        self.__load_data()
+        Train.NUM_FONTS = load_fonts
+        Train.NUM_CHARACTERS = load_characters
+        self.__load_data(load_characters, load_fonts)
         self.__device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
         print("[INFO] Train - Using device:", self.__device)
@@ -52,18 +54,18 @@ class Train:
         self.__writer = writer.SummaryWriter(log_dir)
         os.makedirs("out/CGAN_HWDB/", exist_ok=True)
 
-    def __load_data(self):
+    def __load_data(self, load_characters: int, load_fonts: int):
         self.__transform = transforms.Compose([
             transforms.Resize((64, 64)),
             transforms.ToTensor(),
         ])
         self.__train_loader = DataLoaderX(
-            CGAN_HWDB(transform=self.__transform),
+            CGAN_HWDB(self.__transform, load_characters, load_fonts),
             batch_size=Train.BATCH_SIZE,
             shuffle=True,
             num_workers=Train.NUM_WORKERS,
             pin_memory=True,
-            # drop_last=True
+            drop_last=True
         )
 
     def __init_module(self):
@@ -138,7 +140,7 @@ class Train:
             character_index: Tensor = character_index.to(self.__device)
             real_img: Tensor = real_img.to(self.__device)
 
-            print(f"[INFO] Train - Epoch: {epoch}")
+            # print(f"[INFO] Train - Epoch: {epoch}")
 
             x1 = protype_img
             x2 = style_img
@@ -261,12 +263,11 @@ class Train:
             },
             epoch,
         )
-        if epoch % Train.SAVE_INTERVAL == 0:
-            time_str = str(datetime.now()).replace(':', '-')
-            out_path = f"out/CGAN_HWDB/{epoch}-{time_str}.pth"
+        if (epoch + 1) % Train.SAVE_INTERVAL == 0:
+            out_path = "out/CGAN_HWDB/model.pth"
             torch.save(
                 {
-                    "G": self.__G.state_dict(),
+                    "G": self.__G.state_dict(), 
                     "D": self.__D.state_dict(),
                     "CLSP": self.__CLSP.state_dict(),
                     "CLSS": self.__CLSS.state_dict(),
@@ -282,5 +283,5 @@ class Train:
 
 
 if __name__ == '__main__':
-    train = Train(4801)
+    train = Train(250, load_characters=200, load_fonts=20)
     train()

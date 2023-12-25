@@ -144,9 +144,13 @@ class GenerationLoss(nn.Module):
         #     + nn.MSELoss()(out[3][3], out_real[3][3])
         # )
         assert len(features) == len(features_real)
+        features = features[4:8]
+        features_real = features_real[4:8]
         tmp_loss = 0
+        for i in range(len(out[3])):
+            tmp_loss += nn.MSELoss()(out[3][i], out_real[3][i])
         for i in range(len(features)):
-            tmp_loss += nn.MSELoss()(features[i], features_real[i])
+            tmp_loss += nn.MSELoss()(features[i], features_real[i]) * 0.1
         self.reconstruction_loss2 = LAMBDA_PHI * tmp_loss
         
 

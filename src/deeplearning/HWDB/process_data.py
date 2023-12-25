@@ -39,7 +39,7 @@ def read_from_gnt_dir(gnt_dir: str):
             file_path = os.path.join(gnt_dir, file_name)
             with open(file_path, 'rb') as f:
                 for image, label in one_file(f):
-                    yield image, label
+                    yield image, label, f.name.split(os.sep)[-1]
 
 
 def gnt_to_img(gnt_dir: str, img_dir: str, char_dict: dict[str, str]):
@@ -66,7 +66,7 @@ def gnt_to_img(gnt_dir: str, img_dir: str, char_dict: dict[str, str]):
     bar = tqdm(total=total, desc=f'Converting {mode} gnt to img')
     counter = 0
     thread_pool = ThreadPoolExecutor(20)
-    for image, label in read_from_gnt_dir(gnt_dir):
+    for image, label, _ in read_from_gnt_dir(gnt_dir):
         thread_pool.submit(save_img, label, image, counter)
         counter += 1
         bar.update(1)
@@ -85,7 +85,7 @@ def generate_char_dict(data_dir: str, test_gnt_dir: str):
         bar = tqdm(total=all_imgs, desc='Generating char dict')
 
         char_set = set()
-        for _, tagcode in read_from_gnt_dir(gnt_dir=test_gnt_dir):
+        for _, tagcode, _ in read_from_gnt_dir(gnt_dir=test_gnt_dir):
             tagcode_unicode = struct.pack('>H', tagcode).decode('gb2312')
             char_set.add(tagcode_unicode)
             bar.update(1)
