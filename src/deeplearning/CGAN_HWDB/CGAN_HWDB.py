@@ -25,9 +25,9 @@ class CGAN_HWDB(Dataset):
         self.__characters = [c for c in char_dict.keys()]
         self.__characters = self.__characters[:self.__load_characters]
         os.makedirs('out/CGAN_HWDB', exist_ok=True)
-        with open('out/CGAN_HWDB/chars.txt', 'w+') as file:
+        with open('out/CGAN_HWDB/chars1.txt', 'w+') as file:
             file.writelines(self.__characters)
-        self.__protype_font = 'SIMHEI.TTF'
+        self.__protype_font = 'STKAITI.TTF'
         self.__ensure_data()
         self.__protype_imgs: list[Image.Image] = [read_img(
             f'data/CGAN_HWDB/{self.__protype_font}/{charater}.png') for charater in self.__characters] * len(self.__fonts)
@@ -41,13 +41,8 @@ class CGAN_HWDB(Dataset):
             len(self.__fonts)) for i in range(len(self.__characters))]
 
     def __ensure_data(self):
-        # for font in self.__fonts:
-        #     if not os.path.exists(f'data/CGAN_HWDB/{font}') \
-        #             or len(os.listdir(f'data/CGAN_HWDB/{font}')) == 0:
-        #         os.makedirs(f'data/CGAN_HWDB/{font}', exist_ok=True)
-        #         for charater in self.__characters:
-        #             generate_data(charater, font, 58)
-        if not os.path.exists(f'data/CGAN_HWDB/{self.__protype_font}'):
+        if not os.path.exists(f'data/CGAN_HWDB/{self.__protype_font}') \
+            or len(os.listdir(f'data/CGAN_HWDB/{self.__protype_font}')) != len(self.__characters):
             for charater in self.__characters:
                 generate_data(charater, self.__protype_font, 58)
 
