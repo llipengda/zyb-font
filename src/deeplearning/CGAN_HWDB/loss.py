@@ -1,7 +1,9 @@
-from torch import nn
 import torch
-from torch import autograd
 import torch.nn.functional as F
+
+from torch import nn
+from torch import autograd
+
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ALPHA = 3
@@ -13,18 +15,11 @@ LAMBDA_LI = 50
 LAMBDA_PHI = 75
 PHI_P = 3
 PHI_R = 5
+EPS = 0.05
 
 
 class LabelSmoothing(nn.Module):
-    """
-    NLL loss with label smoothing.
-    """
-
     def __init__(self, smoothing=0.1):
-        """
-        Constructor for the LabelSmoothing module.
-        :param smoothing: label smoothing factor
-        """
         super(LabelSmoothing, self).__init__()
         self.confidence = 1.0 - smoothing
         self.smoothing = smoothing
@@ -64,7 +59,6 @@ class DiceLoss(nn.Module):
 
 
 def calc_gradient_penalty(D, x_real, x_fake, x1, x2):
-    # print real_data.size()
 
     x_real.requires_grad = True
     x_fake.requires_grad = True
@@ -78,9 +72,8 @@ def calc_gradient_penalty(D, x_real, x_fake, x1, x2):
 
     interpolates = interpolates.to(DEVICE)
 
-    disc_interpolates = D(interpolates, x1, x2)[:3]  # 最后一个是中间层feature，不需要
+    disc_interpolates = D(interpolates, x1, x2)[:3]
 
-    # print(x_real.requires_grad, x_fake.requires_grad, x1.requires_grad, x2.requires_grad)
     gradients = autograd.grad(
         outputs=disc_interpolates,
         inputs=[interpolates, x1, x2],
@@ -135,18 +128,14 @@ class GenerationLoss(nn.Module):
             x_fake, x_real
         )
 
-        # 原论文里面使用训练好的vgg字符分类网络的中间特征来做
-        # 这里为了省事，直接用的Discriminator的中间层特征
-        # self.reconstruction_loss2 = LAMBDA_PHI * (
-        #     nn.MSELoss()(out[3][0], out_real[3][0])
-        #     + nn.MSELoss()(out[3][1], out_real[3][1])
-        #     + nn.MSELoss()(out[3][2], out_real[3][2])
-        #     + nn.MSELoss()(out[3][3], out_real[3][3])
-        # )
         assert len(features) == len(features_real)
+        features = features[4:8]
+        features_real = features_real[4:8]
         tmp_loss = 0
+        for i in range(len(out[3])):
+            tmp_loss += nn.MSELoss()(out[3][i], out_real[3][i])
         for i in range(len(features)):
-            tmp_loss += nn.MSELoss()(features[i], features_real[i])
+            tmp_loss += nn.MSELoss()(features[i], features_real[i]) * EPS
         self.reconstruction_loss2 = LAMBDA_PHI * tmp_loss
         
 
@@ -160,7 +149,7 @@ class GenerationLoss(nn.Module):
         
         self.content_category_loss = BETA_P * self.cls_criteron(
             cls_enc_p, char_label
-        )  # category loss for content prototype encoder
+        )
         
         self.style_category_loss = BETA_R * self.cls_criteron(
             cls_enc_s, real_style_label
@@ -204,22 +193,22 @@ class DiscriminationLoss(nn.Module):
     ):
         self.real_loss = ALPHA * nn.BCELoss()(
             out_real[0], real_label.float().view(-1, 1)
-        )  # fake or real loss
+        )  
         self.fake_loss = ALPHA * nn.BCELoss()(
             out_fake[0], fake_label.float().view(-1, 1)
-        )  # fake or real loss
+        )  
         self.real_style_loss = BETA_D * self.cls_criteron(
             out_real[1], real_style_label
-        )  # style category loss
+        ) 
         self.fake_style_loss = BETA_D * self.cls_criteron(
             out_fake[1], fake_style_label
-        )  # style category loss
+        ) 
         self.real_char_category_loss = BETA_D * self.cls_criteron(
             out_real[2], char_label
-        )  # char category loss
+        )  
         self.fake_char_category_loss = BETA_D * self.cls_criteron(
             out_fake[2], fake_char_label
-        )  # char category loss
+        )  
         self.content_category_loss = BETA_P * self.cls_criteron(
             cls_enc_p, char_label
         )

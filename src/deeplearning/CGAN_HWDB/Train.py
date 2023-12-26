@@ -25,10 +25,10 @@ class DataLoaderX(DataLoader):
 
 class Train:
     BATCH_SIZE = 128
-    NUM_WORKERS = 8
-    SAVE_INTERVAL = 300
+    NUM_WORKERS = 12
+    SAVE_INTERVAL = 10
 
-    NUM_FONTS = 14
+    NUM_FONTS = 80
     NUM_CHARACTERS = 3755
 
     BETA_1 = 0.5
@@ -39,9 +39,11 @@ class Train:
 
     LAMBDA_L1 = 50
 
-    def __init__(self, epochs=1201, reuse_path: str | None = None):
+    def __init__(self, epochs=1201, reuse_path: str | None = None, load_characters=50, load_fonts=15):
         self.__epochs = epochs
-        self.__load_data()
+        Train.NUM_FONTS = load_fonts
+        Train.NUM_CHARACTERS = load_characters
+        self.__load_data(load_characters, load_fonts)
         self.__device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
         print("[INFO] Train - Using device:", self.__device)
@@ -52,18 +54,18 @@ class Train:
         self.__writer = writer.SummaryWriter(log_dir)
         os.makedirs("out/CGAN_HWDB/", exist_ok=True)
 
-    def __load_data(self):
+    def __load_data(self, load_characters: int, load_fonts: int):
         self.__transform = transforms.Compose([
             transforms.Resize((64, 64)),
             transforms.ToTensor(),
         ])
         self.__train_loader = DataLoaderX(
-            CGAN_HWDB(transform=self.__transform),
+            CGAN_HWDB(self.__transform, load_characters, load_fonts),
             batch_size=Train.BATCH_SIZE,
             shuffle=True,
             num_workers=Train.NUM_WORKERS,
             pin_memory=True,
-            # drop_last=True
+            drop_last=True
         )
 
     def __init_module(self):
@@ -71,7 +73,6 @@ class Train:
         self.__D = Discriminator(Train.NUM_FONTS + 1, Train.NUM_CHARACTERS + 1).to(
             self.__device
         )
-        # 两个encoder后面的外接分类器
         self.__CLSP = ClSEncoderP(Train.NUM_CHARACTERS + 1).to(self.__device)
         self.__CLSS = CLSEncoderS(Train.NUM_FONTS + 1).to(self.__device)
         
@@ -83,7 +84,6 @@ class Train:
             betas=(Train.BETA_1, Train.BETA_2),
             weight_decay=Train.WEIGHT_DECAY,
         )
-        # scheduler_G = ExponentialLR(optimizer_G, 0.99)
 
         self.__optimizer_D = optim.Adam(
             chain(
@@ -98,14 +98,12 @@ class Train:
         
         if self.__reuse_path is not None:
             print(f"[INFO] Loading model from {self.__reuse_path}")
-            # 增加font和char的数量不影响G的结构，所以G可以在不同试验中重复使用
             params = torch.load(self.__reuse_path, map_location="cpu")
             try:
                 self.__G.load_state_dict(params["G"])
                 self.__D.load_state_dict(params["D"])
                 self.__CLSP.load_state_dict(params["CLSP"])
                 self.__CLSS.load_state_dict(params["CLSS"])
-                # 如果类别变化了，optimizer就算加载成功也会在step处报错
                 self.__optimizer_G.load_state_dict(params["optimizer_G"])
                 self.__optimizer_D.load_state_dict(params["optimizer_D"])
                 print("[INFO] Loading success")
@@ -138,31 +136,38 @@ class Train:
             character_index: Tensor = character_index.to(self.__device)
             real_img: Tensor = real_img.to(self.__device)
 
-            print(f"[INFO] Train - Epoch: {epoch}")
 
             x1 = protype_img
+            
             x2 = style_img
+            
             x_real = real_img
-            real_style_label = style_index  # 真实的风格标签
+            
+            real_style_label = style_index
+
             fake_style_label = torch.tensor(
                 [
                     Train.NUM_FONTS for _ in range(x1.shape[0])
-                ]  # drop_last = True的时候可以把用range(conf.batch_size)
+                ]
             ).to(
                 self.__device
-            )  # 假的风格标签
-            char_label = protype_index  # 真实的字形标签
+            )
+            
+            char_label = protype_index 
+            
             fake_char_label = torch.tensor(
                 [Train.NUM_CHARACTERS for _ in range(x1.shape[0])]
             ).to(
                 self.__device
-            )  # 假的字形标签
+            )
+            
             real_label = torch.tensor([1 for _ in range(x1.shape[0])]).to(
                 self.__device
-            )  # 真样本标签
+            )
+            
             fake_label = torch.tensor([0 for _ in range(x1.shape[0])]).to(
                 self.__device
-            )  # 假样本标签
+            )
 
             self.__optimizer_G.zero_grad()
             x_fake, lout, rout = self.__G(x1, x2)
@@ -177,7 +182,7 @@ class Train:
                 _, features = self.__CNN(x_fake_rgb)
                 _, features_real = self.__CNN(x_real_rgb)
 
-            # 两边encoder之后接一个分类器
+            
             cls_enc_p = self.__CLSP(lout.view(-1, 512))
             cls_enc_s = self.__CLSS(rout.view(-1, 512))
 
@@ -208,7 +213,7 @@ class Train:
             )
             epoch_lgs += L_G.item()
 
-            L_G.backward(retain_graph=True)  # 为何为提示重复backward
+            L_G.backward(retain_graph=True)
             self.__optimizer_G.step()
 
             self.__optimizer_D.zero_grad()
@@ -218,7 +223,7 @@ class Train:
             cls_enc_p = self.__CLSP(lout.view(-1, 512).detach())
             cls_enc_s = self.__CLSS(rout.view(-1, 512).detach())
 
-            # 真假分类损失，风格分类损失，两个encoder提取到的特征质量损失
+            # 鉴别器损失
             L_D = DiscriminationLoss()(
                 out_real,
                 out_fake,
@@ -261,12 +266,11 @@ class Train:
             },
             epoch,
         )
-        if epoch % Train.SAVE_INTERVAL == 0:
-            time_str = str(datetime.now()).replace(':', '-')
-            out_path = f"out/CGAN_HWDB/{epoch}-{time_str}.pth"
+        if (epoch + 1) % Train.SAVE_INTERVAL == 0:
+            out_path = "out/CGAN_HWDB/model.pth"
             torch.save(
                 {
-                    "G": self.__G.state_dict(),
+                    "G": self.__G.state_dict(), 
                     "D": self.__D.state_dict(),
                     "CLSP": self.__CLSP.state_dict(),
                     "CLSS": self.__CLSS.state_dict(),
@@ -282,5 +286,5 @@ class Train:
 
 
 if __name__ == '__main__':
-    train = Train(4801)
+    train = Train(epochs=120, load_characters=200, load_fonts=15)
     train()

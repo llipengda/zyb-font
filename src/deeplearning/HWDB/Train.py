@@ -21,7 +21,7 @@ torch.backends.cudnn.deterministic = True
 
 
 class Train:
-    BATCH_SIZE_TRAIN = 25
+    BATCH_SIZE_TRAIN = 64
     BATCH_SIZE_TEST = 2000
     LEARNING_RATE = 0.005
     LOG_INTERVAL = 500
@@ -159,7 +159,7 @@ class Train:
                        -len(self.__train_loader) // Train.LOG_INTERVAL:]) / (
                            len(self.__train_loader) // Train.LOG_INTERVAL)
         bar.set_postfix(loss=f'{avg_loss:.6f}',
-                        correct=f'{(correct / total) * 100.:.6f}%')
+                        avg_correct=f'{(correct / total) * 100.:.6f}%')
 
     def test(self, epoch: int):
         # for type hint

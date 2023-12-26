@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedLayout
 
 from gui.about import About
 from gui.file import File
+from gui.generate import Generate
 from gui.painting import Painting
 from gui.setting import Setting
 from gui.topnav import TopBar
@@ -23,15 +24,20 @@ class RightContent(QWidget):
 
         self.painting = Painting()
         self.file = File()
+        self.generate = Generate()
         self.setting = Setting()
         self.about = About()
 
         self.right_stack_layout.addWidget(self.painting.group)
         self.right_stack_layout.addWidget(self.file.group)
+        self.right_stack_layout.addWidget(self.generate.group)
         self.right_stack_layout.addWidget(self.setting.group)
         self.right_stack_layout.addWidget(self.about.group)
 
         self.right_content_layout.addLayout(self.right_stack_layout)
+
+        self.setting.widget.idx.connect(self.painting.widget.set_idx)
+        self.file.ger.connect(self.generate.generate)
 
     @Slot(str)
     def get_menu_index(self, msg):

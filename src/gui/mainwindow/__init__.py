@@ -34,3 +34,6 @@ class MainWindow(QWidget):
 
         self.left.msg.connect(self.right.nav_group.get_label)
         self.left.msg.connect(self.right.get_menu_index)
+        self.left.refresh.connect(self.right.file.refresh)
+        self.right.painting.widget.signal.connect(self.right.file.refresh)
+        self.right.file.change.connect(self.left.set_menu_bg)

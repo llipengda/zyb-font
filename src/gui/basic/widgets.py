@@ -26,6 +26,7 @@ class Button(QPushButton):
         self.setText(name)
 
     def enterEvent(self, event) -> None:
+        self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet(
             "background-color:rgb(81,93,128);padding:5px;color:#ffffff;font-size: 18px;border-width: "
             "1px;border-style: solid;border-color: #ffffff;")
@@ -70,6 +71,9 @@ class Slider(QSlider):
         self.setValue(25)
         self.setSingleStep(1)
 
+    def enterEvent(self, event) -> None:
+        self.setCursor(Qt.PointingHandCursor)
+
 
 class MenuFrame(QFrame):
     def __init__(self):
@@ -78,6 +82,7 @@ class MenuFrame(QFrame):
         self.setStyleSheet("background-color:rgba(54,64,95,0)")
 
     def enterEvent(self, event):
+        self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet(
             "background-color: {};border-radius:4px;".format(static.data["menu_bg"]["enter"]))
 
@@ -99,6 +104,7 @@ class MiniLabel(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def enterEvent(self, event):
+        self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet(self.style+"background-color: {};border-radius:4px;".format(
             static.data["to_btn"]["focusbackground"]))
 
@@ -121,6 +127,7 @@ class FullLabel(QLabel):
         self.flag = False
 
     def enterEvent(self, event):
+        self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet(self.style + "background-color: {};border-radius:4px;".format(
             static.data["to_btn"]["focusbackground"]))
 
@@ -146,6 +153,7 @@ class CloseLabel(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def enterEvent(self, event):
+        self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet(self.style + "background-color: {};border-radius:4px;".format(
             static.data["to_btn"]["focusbackground"]))
 

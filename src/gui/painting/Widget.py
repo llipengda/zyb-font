@@ -1,17 +1,33 @@
 import os
+import time
 import uuid
 
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QSplitter, QWidget
+from PySide6.QtCore import Signal, Slot
+from PySide6.QtGui import Qt
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QSplitter, QWidget, QLabel
 
+from deeplearning import MNIST, HWDB
 from gui.basic.widgets import Button, Label, Slider, on_pressed
 from gui.painting.PaintBoard import PaintBoard
+import gui.static.data as static
 
+
+# TODO 适配
 
 class Widget(QWidget):
+    signal = Signal()
+    msg = Signal()
+    ger = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
+        self.funcs = {
+            0: MNIST.predict(),
+            1: HWDB.predict(),
+            2: HWDB.predict()
+        }
+        self.idx = 0
         self.__init_data()
         self.__init_view()
 
@@ -60,25 +76,47 @@ class Widget(QWidget):
         splitter = QSplitter(self)
         sub_layout.addWidget(splitter)
 
-        self.__btn_save = Button("预测并保存")
+        self.__btn_save = Button("保存")
         self.__btn_save.setParent(self)
         self.__btn_save.pressed.connect(self.on_btn_save)
         sub_layout.addWidget(self.__btn_save)
 
-        self.__btn_generate = Button("生成字体")
-        self.__btn_generate.setParent(self)
-        sub_layout.addWidget(self.__btn_generate)
+        self.__btn_predict = Button("保存并预测")
+        self.__btn_predict.setParent(self)
+        self.__btn_predict.pressed.connect(self.on_btn_save_and_predict)
+        sub_layout.addWidget(self.__btn_predict)
+
+        sub_layout.addSpacing(30)
+
+        predict_layout = QHBoxLayout()
+        predict_layout.setSpacing(10)
+        sub_layout.addLayout(predict_layout)
+
+        self.__prediction_label = Label("预测结果")
+        self.__prediction_label.setParent(self)
+        self.__prediction_label.setFixedHeight(30)
+        predict_layout.addWidget(self.__prediction_label)
+
+        self.__prediction_clear_button = Button("清空预测结果")
+        self.__prediction_clear_button.setParent(self)
+        self.__prediction_clear_button.pressed.connect(self.on_prediction_clear)
+        predict_layout.addWidget(self.__prediction_clear_button)
+
+        self.__prediction = QLabel(self)
+        self.__prediction.setFixedHeight(100)
+        self.__prediction.setAlignment(Qt.AlignCenter)
+        self.__prediction.setStyleSheet(static.data["predict"]["style"])
+
+        sub_layout.addWidget(self.__prediction)
 
         main_layout.addLayout(sub_layout)
 
+        # 置于顶层
         self.__value.raise_()
 
     def on_clear(self):
         on_pressed(self.__btn_clear)
         self.__paint_board.clear()
-
-    def on_pen_thickness(self):
-        pass
 
     def on_btn_eraser(self):
         on_pressed(self.__eraser)
@@ -93,13 +131,34 @@ class Widget(QWidget):
 
         if self.__paint_board.is_empty():
             return
-
         name = uuid.uuid1()
         path = rf"./draw/{name}.jpg"
         image = self.__paint_board.get_content_as_image()
         if not os.path.exists("./draw"):
             os.mkdir("./draw")
         image.save(path)
+
+        self.signal.emit()
+        self.__paint_board.clear()
+
+    def on_btn_save_and_predict(self):
+        on_pressed(self.__btn_save)
+
+        if self.__paint_board.is_empty():
+            return
+        name = uuid.uuid1()
+        path = rf"./draw/{name}.jpg"
+        image = self.__paint_board.get_content_as_image()
+        if not os.path.exists("./draw"):
+            os.mkdir("./draw")
+        image.save(path)
+
+        prediction = self.funcs[self.idx](path)
+
+        self.__prediction.setText(str(prediction))
+        os.rename(path, rf"./draw/{str(prediction)}-{name}.jpg")
+
+        self.signal.emit()
 
         self.__paint_board.clear()
 
@@ -112,13 +171,16 @@ class Widget(QWidget):
         proportion = (value - left) / maximum
 
         x, y, width, height = self.__slider_pen.geometry().x(), self.__slider_pen.geometry().y(), \
-            self.__slider_pen.geometry().width(), self.__slider_pen.geometry().height()
+                              self.__slider_pen.geometry().width(), self.__slider_pen.geometry().height()
         val = proportion * width
 
         self.__value.move(x + val - self.__value.width() // 2, y + height)
         self.__value.setText(str(value))
 
-    def on_btn_generate(self):
-        on_pressed(self.__btn_generate)
+    def on_prediction_clear(self):
+        on_pressed(self.__prediction_clear_button)
+        self.__prediction.setText("")
 
-        pass
+    @Slot(int)
+    def set_idx(self, idx):
+        self.idx = idx

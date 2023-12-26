@@ -23,14 +23,13 @@ class ConvBNRelu(nn.Module):
         return self.module(x)
 
 
-# 这里的ks到底设置多少，论文里面是5，但是5跑不通，可能跟pad有关？
 class DeConvBNRelu(nn.Module):
     def __init__(self, in_c: int, out_c: int, ks=6, pad=2, s=2, bn=False):
         super(DeConvBNRelu, self).__init__()
         conv = nn.ConvTranspose2d(
             in_c, out_c, kernel_size=ks, padding=pad, stride=s
         )
-        relu = nn.ReLU(inplace=False)  # 因为计算图有环，会重复计算，不能用inplace
+        relu = nn.ReLU(inplace=False) 
         self.module = nn.Sequential()
         if bn:
             batchnorm = nn.BatchNorm2d(out_c)
@@ -97,7 +96,6 @@ class Generater(nn.Module):
         self.deconv5 = DeConvBNRelu(128 * 2, 64, bn=True)
         self.deconv6 = DeConvBNRelu(64 * 2, 1, bn=True)
 
-        # 这两层应该归入Discriminator
         self.fc1 = nn.Linear(512, num_fonts)
         self.fc2 = nn.Linear(512, num_characters)
 
@@ -121,20 +119,9 @@ class Generater(nn.Module):
         de_4 = self.deconv5(torch.cat([lout_1, de_3], dim=1))
         de_5 = self.deconv6(torch.cat([lout_0, de_4], dim=1)) # type: torch.Tensor
 
-        # cls_left = self.fc1(lout[5])
-        # cls_right = self.fc2(rout[5])
-        # return de_5, cls_left, cls_right
         return de_5, lout_5, rout_5
 
 
-# refer to https://github.com/kaonashi-tyc/zi2zi/blob/master/model/unet.py
-
-
-# Discriminator要改，同时输入三张图片，三张图片在通道上拼接之后再计算，参考以下链接
-# refer to  https://github.com/eriklindernoren/PyTorch-GAN/blob/master/implementations/pix2pix/models.py
-
-
-# todo: 在Discriminator中添加layernorm
 class Discriminator(nn.Module):
     def __init__(self, num_fonts=80, num_characters=3500 + 1):
         super(Discriminator, self).__init__()
@@ -142,7 +129,6 @@ class Discriminator(nn.Module):
         self.conv2 = ConvBNRelu(64, 64 * 2, ks=5, pad=2, s=2, bn=True)
         self.conv3 = ConvBNRelu(64 * 2, 64 * 4, ks=5, pad=2, s=2, bn=True)
         self.conv4 = ConvBNRelu(64 * 4, 64 * 8, ks=5, pad=2, s=1, bn=True)
-        # self.convs = nn.Sequential(conv1, conv2, conv3, conv4)
         self.fc1 = nn.Linear(512 * 8 * 8, 1)
         self.fc2 = nn.Linear(512 * 8 * 8, num_fonts)
         self.fc3 = nn.Linear(512 * 8 * 8, num_characters)

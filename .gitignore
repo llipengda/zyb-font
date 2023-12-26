@@ -8,3 +8,4 @@ draw/
 __pycache__/
 logs/
 imgs/
+gen/

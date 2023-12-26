@@ -9,6 +9,7 @@ class Painting(QWidget):
 
         self.group = QGroupBox()
         self.layout = QHBoxLayout()
+        self.widget = Widget()
 
-        self.layout.addWidget(Widget())
+        self.layout.addWidget(self.widget)
         self.group.setLayout(self.layout)
