@@ -1,17 +1,25 @@
 import os
+import time
 import uuid
 
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QSplitter, QWidget
+from PySide6.QtCore import Signal
+from PySide6.QtGui import Qt
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QSplitter, QWidget, QLabel
 
 from gui.basic.widgets import Button, Label, Slider, on_pressed
 from gui.painting.PaintBoard import PaintBoard
+import gui.static.data as static
 
+
+# TODO 适配
 
 class Widget(QWidget):
+    signal = Signal()
 
-    def __init__(self, parent=None):
+    def __init__(self, func: callable, parent=None):
         super().__init__(parent=parent)
 
+        self.__func = func
         self.__init_data()
         self.__init_view()
 
@@ -57,6 +65,20 @@ class Widget(QWidget):
         self.__value.setGeometry(645, 169, 40, 40)
         self.__value.setVisible(False)
 
+        sub_layout.addSpacing(30)
+
+        self.__prediction_label = Label("预测结果")
+        self.__prediction_label.setParent(self)
+        self.__prediction_label.setFixedHeight(30)
+        sub_layout.addWidget(self.__prediction_label)
+
+        self.__prediction = QLabel(self)
+        self.__prediction.setFixedHeight(100)
+        self.__prediction.setAlignment(Qt.AlignCenter)
+        self.__prediction.setStyleSheet(static.data["predict"]["style"])
+
+        sub_layout.addWidget(self.__prediction)
+
         splitter = QSplitter(self)
         sub_layout.addWidget(splitter)
 
@@ -65,8 +87,9 @@ class Widget(QWidget):
         self.__btn_save.pressed.connect(self.on_btn_save)
         sub_layout.addWidget(self.__btn_save)
 
-        self.__btn_generate = Button("生成字体")
+        self.__btn_generate = Button("生成")
         self.__btn_generate.setParent(self)
+        self.__btn_generate.pressed.connect(self.on_btn_generate)
         sub_layout.addWidget(self.__btn_generate)
 
         main_layout.addLayout(sub_layout)
@@ -76,9 +99,6 @@ class Widget(QWidget):
     def on_clear(self):
         on_pressed(self.__btn_clear)
         self.__paint_board.clear()
-
-    def on_pen_thickness(self):
-        pass
 
     def on_btn_eraser(self):
         on_pressed(self.__eraser)
@@ -101,6 +121,13 @@ class Widget(QWidget):
             os.mkdir("./draw")
         image.save(path)
 
+        prediction = self.__func(path)
+
+        self.__prediction.setText(str(prediction))
+        os.rename(path, rf"./draw/{str(prediction)}-{name}.jpg")
+
+        self.signal.emit()
+
         self.__paint_board.clear()
 
     def slider_drag(self, value):
@@ -112,7 +139,7 @@ class Widget(QWidget):
         proportion = (value - left) / maximum
 
         x, y, width, height = self.__slider_pen.geometry().x(), self.__slider_pen.geometry().y(), \
-            self.__slider_pen.geometry().width(), self.__slider_pen.geometry().height()
+                              self.__slider_pen.geometry().width(), self.__slider_pen.geometry().height()
         val = proportion * width
 
         self.__value.move(x + val - self.__value.width() // 2, y + height)

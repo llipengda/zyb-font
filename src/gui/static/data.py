@@ -8,6 +8,10 @@ data = {
         "bg": "rgb(31,39,72)",
         "ICON": "static/pic/logom.png"
     },
+    "predict": {
+      "style": "background-color:rgb(41,49,82);padding:5px;color:#ffffff;font-size: 32px;"
+               "border-width: 1px;border-style: solid;border-color: #ffffff;"
+    },
     "menus": {
         "bg": "rgb(54,64,95)",
         "width": 200,
@@ -20,8 +24,8 @@ data = {
         "picpathm": "static/pic/logom.png"
     },
     "folded_logo": {
-        "width": 56,
-        "height": 80,
+        "width": 48,
+        "height": 48,
     },
     "menu_bg": {
         "width": 170,
@@ -76,7 +80,24 @@ Author: 李鹏达 吴泽霖 张耘彪 武泽恺
     },
     "license": {
         "file": "static/license.txt",
-        "style": "QTextEdit {"
+    },
+    "scroll": {
+        "style": " QLabel {"
+                 "   padding: 5px;"
+                 "   color: #ffffff;"
+                 "   font-size: 18px;"
+                 "   border-width: 1px;"
+                 "   border-style: solid;"
+                 "   border-color: #ffffff;"
+                 " }"
+                 " QScrollArea {"
+                 "   color: #ffffff;"
+                 "   font-size: 18px;"
+                 "   border-width: 1px;"
+                 "   border-style: solid;"
+                 "   border-color: #ffffff;"
+                 " }"
+                 " QTextEdit {"
                  "   padding: 5px;"
                  "   color: #ffffff;"
                  "   font-size: 18px;"

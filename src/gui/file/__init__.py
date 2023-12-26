@@ -34,6 +34,10 @@ class File(QWidget):
         on_pressed(self.__search.search_button)
         self.search_images()
 
+    @Slot()
+    def refresh(self):
+        self.search_images()
+
     def search_images(self, first=False):
         keyword = self.__search.search.text().strip() if not first else ""
         folder = static.data["draw"]["path"]
@@ -71,10 +75,11 @@ class File(QWidget):
 
             image_name = os.path.splitext(os.path.basename(image_file))[0]
 
-            if len(image_name) > 8:
-                image_name = image_name[:8] + "..."
+            if len(image_name) > 2:
+                image_name = image_name[:1] + "..."
 
             pic_name = QLabel(image_name, self)
+            pic_name.setMaximumHeight(30)
             pic_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             self.__show.show_layout.addWidget(pic, row, col)

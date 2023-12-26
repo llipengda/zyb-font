@@ -16,7 +16,7 @@ class License(QWidget):
         self.license.setPlainText(self.get_license())
         self.license.setReadOnly(True)
         self.license.setFixedSize(QSize(820, 500))
-        self.license.setStyleSheet(static.data["license"]["style"])
+        self.license.setStyleSheet(static.data["scroll"]["style"])
 
         self.cursor = self.license.textCursor()
         self.cursor.movePosition(QTextCursor.MoveOperation.Start)
