@@ -2,7 +2,7 @@ from PySide6.QtGui import QPixmap
 
 import gui.static.data as static
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, Slot
 from PySide6.QtWidgets import QLabel, QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QFrame
 
 from gui.basic.widgets import Label, MenuFrame
@@ -42,8 +42,7 @@ class LeftMenu(QWidget):
 
         for index, item in enumerate(self.menu):
             self.menu_bg = MenuFrame()
-            self.menu_bg.mousePressEvent = lambda event, index=index: self.set_menu_bg(
-                event, index)
+            self.menu_bg.mousePressEvent = lambda event, index=index: self.set_menu_bg(index)
             self.menu_bg.setFixedSize(static.data["menu_bg"]["width"],
                                       static.data["menu_bg"]["height"])
             self.menu_bg.setContentsMargins(2, 2, 2, 0)
@@ -123,7 +122,8 @@ class LeftMenu(QWidget):
                 self.menu_group.setFixedWidth(200)
                 self.flag = True
 
-    def set_menu_bg(self, event, index):
+    @Slot(int)
+    def set_menu_bg(self, index):
         for i in range(self.menus_layout.count()):
             if i == index:
                 self.menus_layout.itemAt(i).widget().flag = True
