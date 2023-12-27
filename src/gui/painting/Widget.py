@@ -25,7 +25,6 @@ class Widget(QWidget):
         self.funcs = {
             0: MNIST.predict(),
             1: HWDB.predict(),
-            2: HWDB.predict()
         }
         self.idx = 0
         self.__init_data()

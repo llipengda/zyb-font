@@ -76,7 +76,7 @@ data = {
     "description": {
         "text": """Version: 1.0.0
 Author: 李鹏达 吴泽霖 张耘彪 武泽恺
-鸣谢：陈良育老师
+鸣谢：良育老师
         """
     },
     "license": {

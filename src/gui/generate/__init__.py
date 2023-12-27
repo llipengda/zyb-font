@@ -20,20 +20,27 @@ class Generate(QWidget):
         self.group.setLayout(self.layout)
 
     def __init_model(self):
-        self.model = GenerateModel('out/CGAN_HWDB/model.pth')
+        self.model = GenerateModel('out/CGAN_HWDB/model.pth.u')
+        self.model_2 = GenerateModel('out/CGAN_HWDB/model.pth')
 
     @Slot(list)
     def generate(self, image_files):
-        font_images = []
+        with open('out/CGAN_HWDB/chars.txt', 'r', encoding='utf-8') as f:
+            chars = f.readline()
+
+        font_images = [f'data/CGAN_HWDB/SIMHEI.TTF/{i}.png' for i in chars]
 
         resize_images = list.copy(image_files)
         while len(resize_images) < len(font_images):
             resize_images += image_files
         resize_images = resize_images[:len(font_images)]
 
-        self.model(font_images, resize_images)
+        if resize_images[0].endswith('.png'):
+            self.model_2(font_images, resize_images)
+        else:
+            self.model(font_images, resize_images)
 
-        new_images = []
+        new_images = [f'gen/{i}.png' for i in chars]
         self.update_pics(new_images)
 
     def update_pics(self, image_files):

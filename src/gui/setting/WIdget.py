@@ -29,7 +29,7 @@ class Widget(QWidget):
         self.sub_layout.addWidget(self.label)
 
         self.combo_box = QComboBox(self)
-        self.combo_box.addItems(["MNIST(数字)", "HWDB(汉字)", "MNIST + HWDB"])
+        self.combo_box.addItems(["MNIST(数字)", "HWDB(汉字)"])
         self.combo_box.setStyleSheet(static.data["combo"])
         self.combo_box.setCurrentIndex(0)
         self.combo_box.currentIndexChanged.connect(self.on_index_changed)

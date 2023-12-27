@@ -52,9 +52,9 @@ class File(QWidget):
             os.mkdir(folder)
         image_files = []
         for file_name in os.listdir(folder):
-            if file_name.lower().endswith("jpg"):
-                if keyword.lower() in file_name.lower():
-                    image_files.append(os.path.join(folder, file_name))
+            # if file_name.lower().endswith("jpg"):
+            if keyword.lower() in file_name.lower():
+                image_files.append(os.path.join(folder, file_name))
 
         image_files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
 
