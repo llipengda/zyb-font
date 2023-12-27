@@ -6,7 +6,7 @@ data = {
     "mainwindow": {
         "TITLE": "Font Creator",
         "bg": "rgb(31,39,72)",
-        "ICON": "static/pic/logom.png"
+        "ICON": "static/pic/Pencil.svg"
     },
     "predict": {
         "style": "background-color:rgb(41,49,82);padding:5px;color:#ffffff;font-size: 32px;"
