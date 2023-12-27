@@ -57,11 +57,12 @@ class Generate(QWidget):
             pic.setText(image_file)
             pixmap = QPixmap(image_file).scaledToWidth(100)
             pic.setPixmap(pixmap)
+            pic.setStyleSheet("background-color: white;")
 
             self.__show.show_layout.addWidget(pic, row, col)
 
             col += 1
-            if col == 5:
+            if col == 7:
                 row += 1
                 col = 0
 

@@ -1,6 +1,6 @@
 import os
 from gui.basic.widgets import on_pressed
-from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QLabel, QCheckBox, QPushButton
+from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QLabel, QCheckBox, QPushButton, QMessageBox
 from PySide6.QtCore import Qt, Slot, Signal
 from PySide6.QtGui import QPixmap, QKeySequence, QShortcut
 from gui.file.Search import Search
@@ -109,6 +109,19 @@ class File(QWidget):
             if isinstance(widget, CheckBox):
                 if widget.isChecked():
                     files.append(widget.filename)
+
+        if len(files) == 0:
+            msg = QMessageBox(self)
+
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("没有选中任何图片哦")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.setStyleSheet(static.data["message"])
+
+            msg.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+            msg.exec()
+
+            return
 
         self.ger.emit(files)
         self.change.emit(2)

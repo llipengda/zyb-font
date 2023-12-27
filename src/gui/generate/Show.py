@@ -17,8 +17,6 @@ class Show(QWidget):
         self.pics = QWidget(self.show_area)
 
         self.show_layout = QGridLayout(self.pics)
-        self.show_layout.setHorizontalSpacing(10)
-        self.show_layout.setVerticalSpacing(10)
         self.pics.setLayout(self.show_layout)
 
         self.show_area.setWidget(self.pics)
