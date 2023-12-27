@@ -37,3 +37,4 @@ class MainWindow(QWidget):
         self.left.refresh.connect(self.right.file.refresh)
         self.right.painting.widget.signal.connect(self.right.file.refresh)
         self.right.file.change.connect(self.left.set_menu_bg)
+        self.right.generate.generated.connect(self.left.change_is_generated)

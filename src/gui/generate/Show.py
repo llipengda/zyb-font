@@ -12,13 +12,15 @@ class Show(QWidget):
         self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.show_area = QScrollArea(self)
-        self.show_area.setStyleSheet(static.data["scroll"]["style"])
+        self.show_area.setStyleSheet(static.data["scroll"]["no-border"])
 
         self.pics = QWidget(self.show_area)
 
         self.show_layout = QGridLayout(self.pics)
         self.pics.setLayout(self.show_layout)
 
+        self.show_layout.setHorizontalSpacing(0)
+        self.show_layout.setVerticalSpacing(0)
         self.show_area.setWidget(self.pics)
         self.show_area.setWidgetResizable(True)
         self.show_area.setHorizontalScrollBarPolicy(

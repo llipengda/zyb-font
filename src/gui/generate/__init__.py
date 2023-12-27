@@ -1,4 +1,4 @@
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, Signal
 from PySide6.QtGui import QPixmap, Qt
 from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QLabel
 
@@ -7,6 +7,8 @@ from deeplearning.CGAN_HWDB.Generate import Generate as GenerateModel
 
 
 class Generate(QWidget):
+    generated = Signal()
+
     def __init__(self):
         super().__init__()
         self.__init_model()
@@ -42,6 +44,7 @@ class Generate(QWidget):
 
         new_images = [f'gen/{i}.png' for i in chars]
         self.update_pics(new_images)
+        self.generated.emit()
 
     def update_pics(self, image_files):
         for i in reversed(range(self.__show.show_layout.count())):
@@ -57,7 +60,6 @@ class Generate(QWidget):
             pic.setText(image_file)
             pixmap = QPixmap(image_file).scaledToWidth(100)
             pic.setPixmap(pixmap)
-            pic.setStyleSheet("background-color: white;")
 
             self.__show.show_layout.addWidget(pic, row, col)
 

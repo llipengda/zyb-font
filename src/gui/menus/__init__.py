@@ -3,14 +3,15 @@ from PySide6.QtGui import QPixmap
 import gui.static.data as static
 
 from PySide6.QtCore import Qt, Signal, Slot
-from PySide6.QtWidgets import QLabel, QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QFrame
+from PySide6.QtWidgets import QLabel, QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QFrame, QMessageBox
 
-from gui.basic.widgets import Label, MenuFrame
+from gui.basic.widgets import Label, MenuFrame, MessageBox
 
 
 class LeftMenu(QWidget):
     msg = Signal(dict)
     refresh = Signal()
+    is_generated = False
 
     def __init__(self):
         super().__init__()
@@ -126,6 +127,12 @@ class LeftMenu(QWidget):
     def set_menu_bg(self, index):
         for i in range(self.menus_layout.count()):
             if i == index:
+                if index == 2 and not self.is_generated:
+                    msg = MessageBox(self)
+                    msg.setText("请先在图库中选择图像并生成")
+                    msg.exec()
+                    return
+
                 self.menus_layout.itemAt(i).widget().flag = True
                 self.menus_layout.itemAt(i).widget().setStyleSheet("background-color: {};border-radius:4px;".format(
                     static.data["menu_bg"]["press"]))
@@ -142,3 +149,7 @@ class LeftMenu(QWidget):
         self.msg.emit(arg)
         if arg["index"] == 1:
             self.refresh.emit()
+
+    @Slot()
+    def change_is_generated(self):
+        self.is_generated = True
