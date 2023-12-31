@@ -137,4 +137,3 @@ def generate_font(model, characters, font_path):
 ### 5. Qt 应用程序
 
 使用 PyQt 或 PySide 创建一个图形用户界面（GUI）应用程序，将上述功能整合到应用程序中。
-
