@@ -16,26 +16,23 @@ class File(QWidget):
         super().__init__()
 
         self.group = QGroupBox()
-        self.layout = QVBoxLayout()
+        self.__layout = QVBoxLayout()
 
         self.__search = Search()
 
-        self.layout.addWidget(self.__search)
+        self.__layout.addWidget(self.__search)
         self.__search.search_button.pressed.connect(self.on_button_clicked)
         self.enter = QShortcut(QKeySequence(
             Qt.Key.Key_Return), self.__search, None)
         self.enter.activated.connect(self.on_button_clicked)
 
-<<<<<<< HEAD
-=======
         self.__search.generate_button.pressed.connect(self.on_generate)
         self.__search.all_check.pressed.connect(self.on_all_check)
         self.__search.all_uncheck.pressed.connect(self.on_all_uncheck)
 
->>>>>>> bcb0a5f815ebb9c2ec58c15c4efb956e9eacbca1
         self.__show = Show()
-        self.layout.addWidget(self.__show)
-        self.group.setLayout(self.layout)
+        self.__layout.addWidget(self.__show)
+        self.group.setLayout(self.__layout)
 
         self.search_images(True)
 
@@ -44,13 +41,10 @@ class File(QWidget):
         on_pressed(self.__search.search_button)
         self.search_images()
 
-<<<<<<< HEAD
-=======
     @Slot()
     def refresh(self):
         self.search_images()
 
->>>>>>> bcb0a5f815ebb9c2ec58c15c4efb956e9eacbca1
     def search_images(self, first=False):
         keyword = self.__search.search.text().strip() if not first else ""
         folder = static.data["draw"]["path"]
@@ -82,29 +76,18 @@ class File(QWidget):
         row, col = 0, 0
         for image_file in image_files:
             pic = QLabel(self)
-            pic.setFixedSize(100, 100)
-<<<<<<< HEAD
-=======
+            pic.setFixedSize(300, 300)
             pic.setText(image_file)
->>>>>>> bcb0a5f815ebb9c2ec58c15c4efb956e9eacbca1
             pixmap = QPixmap(image_file).scaledToWidth(100)
             pic.setPixmap(pixmap)
 
             image_name = os.path.splitext(os.path.basename(image_file))[0]
 
-<<<<<<< HEAD
-            if len(image_name) > 8:
-                image_name = image_name[:8] + "..."
-
-            pic_name = QLabel(image_name, self)
-            pic_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
-=======
             if len(image_name) > 5:
                 image_name = image_name[:6] + "..."
 
             pic_name = CheckBox(self, image_name)
             pic_name.filename = image_file
->>>>>>> bcb0a5f815ebb9c2ec58c15c4efb956e9eacbca1
 
             self.__show.show_layout.addWidget(pic, row, col)
             self.__show.show_layout.addWidget(pic_name, row + 1, col)
@@ -115,8 +98,6 @@ class File(QWidget):
                 col = 0
 
         self.__show.show_area.widget().update()
-<<<<<<< HEAD
-=======
 
     @Slot()
     def on_generate(self):
@@ -160,4 +141,3 @@ class CheckBox(QCheckBox):
         self.setStyleSheet(static.data["checkbox"])
         self.setMaximumHeight(30)
         self.setText(name)
->>>>>>> bcb0a5f815ebb9c2ec58c15c4efb956e9eacbca1

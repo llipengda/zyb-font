@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout
 
 from gui.about.Description import Description
 from gui.about.License import License
@@ -9,8 +9,8 @@ class About(QWidget):
         super().__init__()
 
         self.group = QGroupBox()
-        self.layout = QVBoxLayout()
+        self.__layout = QVBoxLayout()
 
-        self.layout.addWidget(Description())
-        self.layout.addWidget(License())
-        self.group.setLayout(self.layout)
+        self.__layout.addWidget(Description())
+        self.__layout.addWidget(License())
+        self.group.setLayout(self.__layout)

@@ -8,8 +8,8 @@ class Show(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.layout = QHBoxLayout()
-        self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.__layout = QHBoxLayout()
+        self.__layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.show_area = QScrollArea(self)
         self.show_area.setStyleSheet(static.data["scroll"]["style"])
@@ -26,5 +26,5 @@ class Show(QWidget):
         self.show_area.setHorizontalScrollBarPolicy(
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        self.layout.addWidget(self.show_area)
-        self.setLayout(self.layout)
+        self.__layout.addWidget(self.show_area)
+        self.setLayout(self.__layout)

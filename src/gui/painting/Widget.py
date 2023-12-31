@@ -1,6 +1,7 @@
 import os
-import time
 import uuid
+
+import gui.static.data as static
 
 from PySide6.QtCore import Signal, Slot
 from PySide6.QtGui import Qt
@@ -9,10 +10,7 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QSplitter, QWidget, QLab
 from deeplearning import MNIST, HWDB
 from gui.basic.widgets import Button, Label, Slider, on_pressed
 from gui.painting.PaintBoard import PaintBoard
-import gui.static.data as static
 
-
-# TODO 适配
 
 class Widget(QWidget):
     signal = Signal()
@@ -68,7 +66,7 @@ class Widget(QWidget):
             lambda: self.__value.setVisible(False))
         sub_layout.addWidget(self.__slider_pen)
 
-        self.__value = Label("25")
+        self.__value = Label("5")
         self.__value.setParent(self)
         self.__value.setGeometry(645, 169, 40, 40)
         self.__value.setVisible(False)
@@ -99,12 +97,13 @@ class Widget(QWidget):
 
         self.__prediction_clear_button = Button("清空预测结果")
         self.__prediction_clear_button.setParent(self)
-        self.__prediction_clear_button.pressed.connect(self.on_prediction_clear)
+        self.__prediction_clear_button.pressed.connect(
+            self.on_prediction_clear)
         predict_layout.addWidget(self.__prediction_clear_button)
 
         self.__prediction = QLabel(self)
         self.__prediction.setFixedHeight(100)
-        self.__prediction.setAlignment(Qt.AlignCenter)
+        self.__prediction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.__prediction.setStyleSheet(static.data["predict"]["style"])
 
         sub_layout.addWidget(self.__prediction)
@@ -171,7 +170,7 @@ class Widget(QWidget):
         proportion = (value - left) / maximum
 
         x, y, width, height = self.__slider_pen.geometry().x(), self.__slider_pen.geometry().y(), \
-                              self.__slider_pen.geometry().width(), self.__slider_pen.geometry().height()
+            self.__slider_pen.geometry().width(), self.__slider_pen.geometry().height()
         val = proportion * width
 
         self.__value.move(x + val - self.__value.width() // 2, y + height)

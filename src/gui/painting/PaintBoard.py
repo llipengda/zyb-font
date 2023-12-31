@@ -12,7 +12,7 @@ class PaintBoard(QWidget):
         self.__currentPos = QPoint(0, 0)
         self.__lastPos = QPoint(0, 0)
         self.__is_empty = True
-        self.__thickness = 10
+        self.__thickness = 5
 
         self.__init_data()
         self.__init_view()
@@ -32,7 +32,7 @@ class PaintBoard(QWidget):
         self.__currentPos = QPoint(0, 0)
         self.__painter = QPainter()
 
-        self.__thickness = 25
+        self.__thickness = 5
         self.__penColor = QColor("black")
 
     def __init_view(self):
@@ -43,7 +43,7 @@ class PaintBoard(QWidget):
         self.update()
         self.__is_empty = True
 
-    def change_pen_thickness(self, thickness=25):
+    def change_pen_thickness(self, thickness=5):
         self.__thickness = thickness
 
     def is_empty(self):

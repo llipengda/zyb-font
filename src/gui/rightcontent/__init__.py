@@ -1,3 +1,5 @@
+import gui.static.data as static
+
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedLayout
 
@@ -7,7 +9,6 @@ from gui.generate import Generate
 from gui.painting import Painting
 from gui.setting import Setting
 from gui.topnav import TopBar
-import gui.static.data as static
 
 
 class RightContent(QWidget):

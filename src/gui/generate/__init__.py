@@ -1,5 +1,5 @@
 from PySide6.QtCore import Slot
-from PySide6.QtGui import QPixmap, Qt
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QLabel
 
 from gui.generate.Show import Show
@@ -12,12 +12,12 @@ class Generate(QWidget):
         self.__init_model()
 
         self.group = QGroupBox()
-        self.layout = QVBoxLayout()
+        self.__layout = QVBoxLayout()
 
         self.__show = Show()
-        self.layout.addWidget(self.__show)
+        self.__layout.addWidget(self.__show)
 
-        self.group.setLayout(self.layout)
+        self.group.setLayout(self.__layout)
 
     def __init_model(self):
         self.model = GenerateModel('out/CGAN_HWDB/model.pth')

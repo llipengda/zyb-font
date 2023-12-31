@@ -26,7 +26,7 @@ class Button(QPushButton):
         self.setText(name)
 
     def enterEvent(self, event) -> None:
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setStyleSheet(
             "background-color:rgb(81,93,128);padding:5px;color:#ffffff;font-size: 18px;border-width: "
             "1px;border-style: solid;border-color: #ffffff;")
@@ -68,11 +68,11 @@ class Slider(QSlider):
         self.setTickInterval(5)
         self.setMaximum(50)
         self.setMinimum(0)
-        self.setValue(25)
+        self.setValue(5)
         self.setSingleStep(1)
 
     def enterEvent(self, event) -> None:
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
 
 class MenuFrame(QFrame):
@@ -82,13 +82,14 @@ class MenuFrame(QFrame):
         self.setStyleSheet("background-color:rgba(54,64,95,0)")
 
     def enterEvent(self, event):
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setStyleSheet(
             "background-color: {};border-radius:4px;".format(static.data["menu_bg"]["enter"]))
 
     def leaveEvent(self, event):
         if not self.flag:
-            self.setStyleSheet("background-color:{}".format(static.data["menu_bg"]["leave"]))
+            self.setStyleSheet(
+                "background-color:{}".format(static.data["menu_bg"]["leave"]))
 
     def mouseReleaseEvent(self, event):
         self.setStyleSheet(
@@ -98,71 +99,77 @@ class MenuFrame(QFrame):
 class MiniLabel(QLabel):
     def __init__(self):
         super().__init__()
-        self.style = "background:url({}) no-repeat center center;".format(static.data["topnav"]["mini"])
-        self.setStyleSheet(self.style)
-        self.setFixedSize(static.data["to_btn"]["width"], static.data["to_btn"]["height"])
+        self.__style = "background:url({}) no-repeat center center;".format(
+            static.data["topnav"]["mini"])
+        self.setStyleSheet(self.__style)
+        self.setFixedSize(
+            static.data["to_btn"]["width"], static.data["to_btn"]["height"])
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def enterEvent(self, event):
-        self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet(self.style+"background-color: {};border-radius:4px;".format(
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setStyleSheet(self.__style + "background-color: {};border-radius:4px;".format(
             static.data["to_btn"]["focusbackground"]))
 
     def leaveEvent(self, event):
-        self.setStyleSheet(self.style+"background-color: {};border-radius:4px;".format(
+        self.setStyleSheet(self.__style + "background-color: {};border-radius:4px;".format(
             static.data["to_btn"]["nobackground"]))
 
     def mousePressEvent(self, event):
-        self.parent().parent().showMinimized()
+        self.parent().parent().showMinimized() # type: ignore
 
 
 class FullLabel(QLabel):
     def __init__(self):
         super().__init__()
-        self.style = "background:url({}) no-repeat center center;".format(static.data["topnav"]["full"])
-        self.setStyleSheet(self.style)
-        self.setFixedSize(static.data["to_btn"]["width"], static.data["to_btn"]["height"])
+        self.__style = "background:url({}) no-repeat center center;".format(
+            static.data["topnav"]["full"])
+        self.setStyleSheet(self.__style)
+        self.setFixedSize(
+            static.data["to_btn"]["width"], static.data["to_btn"]["height"])
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.flag = False
 
     def enterEvent(self, event):
-        self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet(self.style + "background-color: {};border-radius:4px;".format(
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setStyleSheet(self.__style + "background-color: {};border-radius:4px;".format(
             static.data["to_btn"]["focusbackground"]))
 
     def leaveEvent(self, event):
-        self.setStyleSheet(self.style + "background-color: {};border-radius:4px;".format(
+        self.setStyleSheet(self.__style + "background-color: {};border-radius:4px;".format(
             static.data["to_btn"]["nobackground"]))
 
     def mousePressEvent(self, event):
         if not self.flag:
             self.flag = True
-            self.parent().parent().setWindowState(Qt.WindowState.WindowFullScreen)
+            self.parent().parent().setWindowState(Qt.WindowState.WindowFullScreen) # type: ignore
         else:
             self.flag = False
-            self.parent().parent().setWindowState(Qt.WindowState.WindowNoState)
+            self.parent().parent().setWindowState(Qt.WindowState.WindowNoState) # type: ignore
 
 
 class CloseLabel(QLabel):
     def __init__(self):
         super().__init__()
-        self.style = "background:url({}) no-repeat center center;".format(static.data["topnav"]["close"])
-        self.setStyleSheet(self.style)
-        self.setFixedSize(static.data["to_btn"]["width"], static.data["to_btn"]["height"])
+        self.__style = "background:url({}) no-repeat center center;".format(
+            static.data["topnav"]["close"])
+        self.setStyleSheet(self.__style)
+        self.setFixedSize(
+            static.data["to_btn"]["width"], static.data["to_btn"]["height"])
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def enterEvent(self, event):
-        self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet(self.style + "background-color: {};border-radius:4px;".format(
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setStyleSheet(self.__style + "background-color: {};border-radius:4px;".format(
             static.data["to_btn"]["focusbackground"]))
 
     def leaveEvent(self, event):
-        self.setStyleSheet(self.style + "background-color: {};border-radius:4px;".format(
+        self.setStyleSheet(self.__style + "background-color: {};border-radius:4px;".format(
             static.data["to_btn"]["nobackground"]))
 
     def mousePressEvent(self, event):
-        self.parent().parent().close()
+        self.parent().parent().close() # type: ignore
 
 
 class TopBarGroup(QGroupBox):
@@ -170,19 +177,19 @@ class TopBarGroup(QGroupBox):
         super().__init__(parent)
         self.window_start = None
         self.mouse_start = None
-        self.window = self.parent()
+        self.window = self.parent() # type: ignore
         self.flag = False
 
     def mousePressEvent(self, event):
         self.flag = True
         self.mouse_start = self.mapToGlobal(event.pos())
-        self.window_start = self.parent().pos()
+        self.window_start = self.parent().pos() # type: ignore
 
     def mouseReleaseEvent(self, event):
         self.flag = False
 
     def mouseMoveEvent(self, event):
         if self.flag:
-            distance = self.mapToGlobal(event.pos()) - self.mouse_start
+            distance = self.mapToGlobal(event.pos()) - self.mouse_start # type: ignore
             new_position = self.window_start + distance
-            self.parent().move(new_position)
+            self.parent().move(new_position) # type: ignore

@@ -9,7 +9,7 @@ class License(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.layout = QHBoxLayout()
+        self.__layout = QHBoxLayout()
 
         self.setFixedSize(QSize(840, 500))
         self.license = QTextEdit(self)
@@ -18,16 +18,17 @@ class License(QWidget):
         self.license.setFixedSize(QSize(820, 500))
         self.license.setStyleSheet(static.data["scroll"]["style"])
 
-        self.cursor = self.license.textCursor()
-        self.cursor.movePosition(QTextCursor.MoveOperation.Start)
-        while not self.cursor.atEnd():
-            self.cursor.select(QTextCursor.SelectionType.LineUnderCursor)
-            block = self.cursor.blockFormat()
+        self.__cursor = self.license.textCursor()
+        self.__cursor.movePosition(QTextCursor.MoveOperation.Start)
+        
+        while not self.__cursor.atEnd():
+            self.__cursor.select(QTextCursor.SelectionType.LineUnderCursor)
+            block = self.__cursor.blockFormat()
             block.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.cursor.mergeBlockFormat(block)
-            self.cursor.movePosition(QTextCursor.MoveOperation.NextBlock)
+            self.__cursor.mergeBlockFormat(block)
+            self.__cursor.movePosition(QTextCursor.MoveOperation.NextBlock)
 
-        self.layout.addWidget(self.license)
+        self.__layout.addWidget(self.license)
 
     def get_license(self):
         with open(static.data["license"]["file"], "r") as f:

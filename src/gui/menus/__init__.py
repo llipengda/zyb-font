@@ -108,7 +108,7 @@ class LeftMenu(QWidget):
                     0].setVisible(True)
 
     def toggle_menu(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             if self.flag:
                 self.menu_btn_icon.setStyleSheet(
                     "background:url({}) no-repeat center center;".format(static.data["menu_btn"]["close"]))
@@ -126,15 +126,15 @@ class LeftMenu(QWidget):
     def set_menu_bg(self, index):
         for i in range(self.menus_layout.count()):
             if i == index:
-                self.menus_layout.itemAt(i).widget().flag = True
+                self.menus_layout.itemAt(i).widget().flag = True # type: ignore
                 self.menus_layout.itemAt(i).widget().setStyleSheet("background-color: {};border-radius:4px;".format(
                     static.data["menu_bg"]["press"]))
                 dict_data = {"label": self.menus_layout.itemAt(
-                    i).widget().layout().itemAt(1).widget().text(), "index": index}
+                    i).widget().layout().itemAt(1).widget().text(), "index": index} # type: ignore
                 self.change_label(dict_data)
 
             elif i != index:
-                self.menus_layout.itemAt(i).widget().flag = False
+                self.menus_layout.itemAt(i).widget().flag = False # type: ignore
                 self.menus_layout.itemAt(i).widget().setStyleSheet(
                     "background-color:{}".format(static.data["menu_bg"]["leave"]))
 

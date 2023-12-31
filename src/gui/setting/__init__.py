@@ -7,8 +7,8 @@ class Setting(QWidget):
     def __init__(self):
         super().__init__()
         self.group = QGroupBox()
-        self.layout = QVBoxLayout()
+        self.__layout = QVBoxLayout()
 
         self.widget = Widget()
-        self.layout.addWidget(self.widget)
-        self.group.setLayout(self.layout)
+        self.__layout.addWidget(self.widget)
+        self.group.setLayout(self.__layout)

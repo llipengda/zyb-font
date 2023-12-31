@@ -8,8 +8,8 @@ class Painting(QWidget):
         super().__init__()
 
         self.group = QGroupBox()
-        self.layout = QHBoxLayout()
+        self.__layout = QHBoxLayout()
         self.widget = Widget()
 
-        self.layout.addWidget(self.widget)
-        self.group.setLayout(self.layout)
+        self.__layout.addWidget(self.widget)
+        self.group.setLayout(self.__layout)
