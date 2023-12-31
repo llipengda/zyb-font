@@ -1,4 +1,4 @@
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QLabel
 
@@ -22,8 +22,7 @@ class Generate(QWidget):
         self.group.setLayout(self.__layout)
 
     def __init_model(self):
-        self.model = GenerateModel('out/CGAN_HWDB/model.pth.u')
-        self.model_2 = GenerateModel('out/CGAN_HWDB/model.pth')
+        self.model = GenerateModel('out/CGAN_HWDB/model.pth')
 
     @Slot(list)
     def generate(self, image_files):
@@ -37,10 +36,7 @@ class Generate(QWidget):
             resize_images += image_files
         resize_images = resize_images[:len(font_images)]
 
-        if resize_images[0].endswith('.png'):
-            self.model_2(font_images, resize_images)
-        else:
-            self.model(font_images, resize_images)
+        self.model(font_images, resize_images)
 
         new_images = [f'gen/{i}.png' for i in chars]
         self.update_pics(new_images)

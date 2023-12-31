@@ -38,7 +38,7 @@ class Widget(QWidget):
         self.sub_layout = QHBoxLayout()
         self.sub_layout.setContentsMargins(10, 10, 10, 10)
         self.sub_layout.setSpacing(10)
-        self.layout.addLayout(self.sub_layout)
+        self.__layout.addLayout(self.sub_layout)
 
         self.clear_files = Button("清空图库")
         self.clear_files.setParent(self)
@@ -62,5 +62,18 @@ class Widget(QWidget):
         if os.path.exists("draw"):
             for file in os.listdir("draw"):
                 os.remove(f"draw/{file}")
+
+        self.setCursor(Qt.CursorShape.ArrowCursor)
+        
+    def on_clear_log(self):
+        on_pressed(self.clear_log)
+        self.setCursor(Qt.CursorShape.WaitCursor)
+
+        if os.path.exists("logs"):
+            for root, dirs, files in os.walk("logs", topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
 
         self.setCursor(Qt.CursorShape.ArrowCursor)
