@@ -81,7 +81,7 @@ class File(QWidget):
             pic = Label()
             pic.setFixedSize(100, 100)
             pic.setText(image_file)
-            pic.mousePressEvent = lambda event, row=row, col=col: self.on_pic_clicked(event, pic, row, col)
+            pic.mousePressEvent = lambda event, row=row, col=col: self.on_pic_clicked(event, pic, row, col) # type: ignore
             pixmap = QPixmap(image_file).scaledToWidth(100)
             pic.setPixmap(pixmap)
 
@@ -144,8 +144,8 @@ class File(QWidget):
     def on_pic_clicked(self, event, widget, row, col):
         on_pressed(widget)
 
-        self.__show.show_layout.itemAtPosition(row + 1, col).widget().setChecked(
-            not self.__show.show_layout.itemAtPosition(row + 1, col).widget().isChecked())
+        self.__show.show_layout.itemAtPosition(row + 1, col).widget().setChecked( # type: ignore
+            not self.__show.show_layout.itemAtPosition(row + 1, col).widget().isChecked()) # type: ignore
 
 
 class Label(QLabel):
@@ -155,7 +155,7 @@ class Label(QLabel):
             "padding:5px;color:#ffffff;font-size: 18px;")
 
     def enterEvent(self, event) -> None:
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setStyleSheet(
             "background-color:rgb(81,93,128);padding:5px;color:#ffffff;font-size: 18px;border-width: "
             "1px;border-style: solid;border-color: #ffffff;")

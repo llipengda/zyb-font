@@ -192,7 +192,7 @@ class TopBarGroup(QGroupBox):
         if self.flag:
             distance = self.mapToGlobal(event.pos()) - self.mouse_start # type: ignore
             new_position = self.window_start + distance
-            self.parent().move(new_position)
+            self.parent().move(new_position) # type: ignore
 
 
 class MessageBox(QMessageBox):
