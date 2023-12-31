@@ -286,5 +286,5 @@ class Train:
 
 
 if __name__ == '__main__':
-    train = Train(epochs=120, load_characters=200, load_fonts=15)
+    train = Train(epochs=120000, load_characters=3700, load_fonts=80)
     train()

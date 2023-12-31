@@ -9,6 +9,7 @@ from torchvision import transforms
 from torch.utils.data import Dataset
 
 from deeplearning.CGAN_HWDB.generate_data import generate_data
+from deeplearning.CGAN_HWDB.process_data import process_data
 from deeplearning.CGAN_HWDB.utils import read_img, show_tensor
 
 class CGAN_HWDB(Dataset):
@@ -19,7 +20,12 @@ class CGAN_HWDB(Dataset):
         self.__load_data()
 
     def __load_data(self):
-        self.__fonts = sorted(os.listdir('data/CGAN_HWDB'))[:self.__load_fonts]
+        if not os.path.exists('data/CGAN_HWDB'):
+            os.makedirs('data/CGAN_HWDB')
+            process_data()
+        
+        self.__fonts = sorted(os.listdir('data/CGAN_HWDB'))[:self.__load_fonts - 5]
+        self.__fonts = self.__fonts + ['STKAITI.TTF', 'STLITI.TTF', 'STXINGKA.TTF', 'STXINWEI.TTF', 'STZHONGS.TTF']
         with open('data/HWDB/char_dict', 'rb') as f:
             char_dict: dict[str, str] = pickle.load(f)
         self.__characters = [c for c in char_dict.keys()]
@@ -45,6 +51,8 @@ class CGAN_HWDB(Dataset):
             or len(os.listdir(f'data/CGAN_HWDB/{self.__protype_font}')) != len(self.__characters):
             for charater in self.__characters:
                 generate_data(charater, self.__protype_font, 58)
+                for font in ['STKAITI.TTF', 'STLITI.TTF', 'STXINGKA.TTF', 'STXINWEI.TTF', 'STZHONGS.TTF']:
+                    generate_data(charater, font, 58)
 
     def __getitem__(self, index: int):
         transform = self.__transform

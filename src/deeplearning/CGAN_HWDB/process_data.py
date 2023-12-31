@@ -1,15 +1,18 @@
 import os
 import struct
 
-from PIL import Image, ImageOps, ImageDraw, ImageEnhance
 from concurrent.futures import ThreadPoolExecutor
+from PIL import Image, ImageOps, ImageDraw, ImageEnhance
 from tqdm import tqdm
 
-
+from deeplearning.HWDB.fetch_data import fetch_data
 from deeplearning.HWDB.process_data import read_from_gnt_dir
+
 
 def process_data():
     gnt_dir = 'data/HWDB/raw/HWDB1.1trn_gnt'
+    if not os.path.exists('data/HWDB/raw/HWDB1.1trn_gnt'):
+        fetch_data()
     thread_pool = ThreadPoolExecutor(12)
     bar = tqdm(total=897758, desc='[INFO] Processing data')
     for image, label, writer in read_from_gnt_dir(gnt_dir):
