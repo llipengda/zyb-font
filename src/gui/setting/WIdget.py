@@ -1,9 +1,9 @@
 import os
-import time
+
+import gui.static.data as static
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QComboBox
-import gui.static.data as static
 from gui.basic.widgets import Label, Button, on_pressed
 
 
@@ -35,11 +35,22 @@ class Widget(QWidget):
         self.combo_box.currentIndexChanged.connect(self.on_index_changed)
         self.sub_layout.addWidget(self.combo_box)
 
+        self.sub_layout = QHBoxLayout()
+        self.sub_layout.setContentsMargins(10, 10, 10, 10)
+        self.sub_layout.setSpacing(10)
+        self.layout.addLayout(self.sub_layout)
+
         self.clear_files = Button("清空图库")
         self.clear_files.setParent(self)
         self.clear_files.setMaximumWidth(120)
         self.clear_files.pressed.connect(self.on_clear_files)
-        self.__layout.addWidget(self.clear_files)
+        self.sub_layout.addWidget(self.clear_files)
+
+        self.clear_log = Button("清空日志")
+        self.clear_log.setParent(self)
+        self.clear_log.setMaximumWidth(120)
+        self.clear_log.pressed.connect(self.on_clear_log)
+        self.sub_layout.addWidget(self.clear_log)
 
     def on_index_changed(self, value):
         self.idx.emit(value)

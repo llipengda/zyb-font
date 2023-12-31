@@ -41,7 +41,7 @@ class Generate:
             normalized = torch.clamp(t.squeeze(0).cpu(), 0, 1)
             PIL_image: Image.Image = transforms.ToPILImage()(normalized)
             PIL_image = remove_black_pixels(PIL_image)
-            PIL_image.show()
+            # PIL_image.show()
             PIL_image.save(f'gen/{protype_paths[i].split("/")[-1]}')
 
 

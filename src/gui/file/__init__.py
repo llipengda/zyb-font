@@ -1,11 +1,14 @@
 import os
-from gui.basic.widgets import on_pressed
+
+import gui.static.data as static
+
 from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QLabel, QCheckBox
 from PySide6.QtCore import Qt, Slot, Signal
 from PySide6.QtGui import QPixmap, QKeySequence, QShortcut
+
+from gui.basic.widgets import on_pressed, MessageBox
 from gui.file.Search import Search
 from gui.file.Show import Show
-import gui.static.data as static
 
 
 class File(QWidget):
@@ -52,9 +55,9 @@ class File(QWidget):
             os.mkdir(folder)
         image_files = []
         for file_name in os.listdir(folder):
-            if file_name.lower().endswith("jpg"):
-                if keyword.lower() in file_name.lower():
-                    image_files.append(os.path.join(folder, file_name))
+            # if file_name.lower().endswith("jpg"):
+            if keyword.lower() in file_name.lower():
+                image_files.append(os.path.join(folder, file_name))
 
         image_files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
 
@@ -75,9 +78,10 @@ class File(QWidget):
 
         row, col = 0, 0
         for image_file in image_files:
-            pic = QLabel(self)
-            pic.setFixedSize(300, 300)
+            pic = Label()
+            pic.setFixedSize(100, 100)
             pic.setText(image_file)
+            pic.mousePressEvent = lambda event, row=row, col=col: self.on_pic_clicked(event, pic, row, col)
             pixmap = QPixmap(image_file).scaledToWidth(100)
             pic.setPixmap(pixmap)
 
@@ -91,7 +95,6 @@ class File(QWidget):
 
             self.__show.show_layout.addWidget(pic, row, col)
             self.__show.show_layout.addWidget(pic_name, row + 1, col)
-
             col += 1
             if col == 5:
                 row += 2
@@ -109,6 +112,13 @@ class File(QWidget):
             if isinstance(widget, CheckBox):
                 if widget.isChecked():
                     files.append(widget.filename)
+
+        if len(files) == 0:
+            msg = MessageBox(self)
+            msg.setText("没有选中任何图片哦")
+            msg.exec()
+
+            return
 
         self.ger.emit(files)
         self.change.emit(2)
@@ -130,6 +140,35 @@ class File(QWidget):
             widget = self.__show.show_layout.itemAt(i).widget()
             if isinstance(widget, CheckBox):
                 widget.setChecked(False)
+
+    def on_pic_clicked(self, event, widget, row, col):
+        on_pressed(widget)
+
+        self.__show.show_layout.itemAtPosition(row + 1, col).widget().setChecked(
+            not self.__show.show_layout.itemAtPosition(row + 1, col).widget().isChecked())
+
+
+class Label(QLabel):
+    def __init__(self):
+        super().__init__()
+        self.setStyleSheet(
+            "padding:5px;color:#ffffff;font-size: 18px;")
+
+    def enterEvent(self, event) -> None:
+        self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet(
+            "background-color:rgb(81,93,128);padding:5px;color:#ffffff;font-size: 18px;border-width: "
+            "1px;border-style: solid;border-color: #ffffff;")
+
+    def leaveEvent(self, event) -> None:
+        self.setStyleSheet(
+            "background-color:rgba(81,93,128,0);padding:5px;color:#ffffff;font-size: 18px;border-width: "
+            "1px;border-style: solid;border-color: #ffffff;")
+
+    def mouseReleaseEvent(self, event) -> None:
+        self.setStyleSheet(
+            "background-color:rgb(81,93,128);padding:5px;color:#ffffff;font-size: 18px;border-width: "
+            "1px;border-style: solid;border-color: #ffffff;")
 
 
 class CheckBox(QCheckBox):

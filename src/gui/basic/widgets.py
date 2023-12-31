@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QCheckBox, QSlider, QFrame, QGroupBox
+from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QCheckBox, QSlider, QFrame, QGroupBox, QMessageBox
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 
@@ -192,4 +192,18 @@ class TopBarGroup(QGroupBox):
         if self.flag:
             distance = self.mapToGlobal(event.pos()) - self.mouse_start # type: ignore
             new_position = self.window_start + distance
-            self.parent().move(new_position) # type: ignore
+            self.parent().move(new_position)
+
+
+class MessageBox(QMessageBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setIcon(QMessageBox.Icon.Information)
+        self.setStyleSheet(static.data["message"])
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        self.setStandardButtons(QMessageBox.StandardButton.Ok)
+        self.setFixedSize(400, 200)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+
+

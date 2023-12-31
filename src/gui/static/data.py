@@ -6,7 +6,7 @@ data = {
     "mainwindow": {
         "TITLE": "Font Creator",
         "bg": "rgb(31,39,72)",
-        "ICON": "static/pic/logom.png"
+        "ICON": "static/pic/Pencil.svg"
     },
     "predict": {
         "style": "background-color:rgb(41,49,82);padding:5px;color:#ffffff;font-size: 32px;"
@@ -76,7 +76,7 @@ data = {
     "description": {
         "text": """Version: 1.0.0
 Author: 李鹏达 吴泽霖 张耘彪 武泽恺
-鸣谢：陈良育老师
+鸣谢：良育老师
         """
     },
     "license": {
@@ -152,7 +152,80 @@ Author: 李鹏达 吴泽霖 张耘彪 武泽恺
                  " }"
                  " QScrollBar::handle:vertical:pressed {"
                  "    background-color: rgb(255 ,250 ,250);"
+                 " }",
+        "no-border":
+                 " QLabel {"
+                 "   padding: 0px;"
+                 "   border-width: 0px;"
+                 "   color: #ffffff;"
+                 "   background-color: rgb(255 ,255 ,255);"
                  " }"
+                 " QWidget {"
+                 "   color: #ffffff;"
+                 "   background-color: rgb(255 ,255 ,255);"
+                 " }"
+                 " QScrollArea {"
+                 "   color: #ffffff;"
+                 "   background-color: rgb(255 ,255 ,255);"
+                 "   border-width: 1px;"
+                 "   border-style: solid;"
+                 "   border-color: #ffffff;"
+                 " }"
+                 " QTextEdit {"
+                 "   padding: 5px;"
+                 "   color: #ffffff;"
+                 "   font-size: 18px;"
+                 "   border-width: 1px;"
+                 "   border-style: solid;"
+                 "   border-color: #ffffff;"
+                 " }"
+                 " QScrollBar:vertical {"
+                 "	border: none;"
+                 "    background: rgb(52, 59, 72);"
+                 "    width: 15px;"
+                 "    margin: 21px 0 21px 0;"
+                 "	border-radius: 0px;"
+                 " }"
+                 " QScrollBar::handle:vertical {	"
+                 "	background: rgb(190 ,190 ,190);"
+                 "    min-height: 25px;"
+                 "	border-radius: 4px"
+                 " }"
+                 " QScrollBar::add-line:vertical {"
+                 "     border: none;"
+                 "    background: rgb(55, 63, 77);"
+                 "     height: 20px;"
+                 "	border-bottom-left-radius: 4px;"
+                 "    border-bottom-right-radius: 4px;"
+                 "     subcontrol-position: bottom;"
+                 "     subcontrol-origin: margin;"
+                 " }"
+                 " QScrollBar::sub-line:vertical {"
+                 "	border: none;"
+                 "    background: rgb(55, 63, 77);"
+                 "     height: 20px;"
+                 "	border-top-left-radius: 4px;"
+                 "    border-top-right-radius: 4px;"
+                 "     subcontrol-position: top;"
+                 "     subcontrol-origin: margin;"
+                 " }"
+                 " QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {"
+                 "     background: none;"
+                 " }"
+                 " QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
+                 "     background: none;"
+                 " }"
+                 " QScrollBar::handle:vertical {	"
+                 "	background: rgb(190 ,190 ,190);"
+                 "    min-height: 25px;"
+                 "	border-radius: 4px"
+                 " }"
+                 " QScrollBar::handle:vertical:hover {"
+                 "    background-color: rgb(211 ,211 ,211);"
+                 " }"
+                 " QScrollBar::handle:vertical:pressed {"
+                 "    background-color: rgb(255 ,250 ,250);"
+                 " }",
     },
     "right": [{"title": "画板"},
               {"title": "图库"},
@@ -262,5 +335,27 @@ Author: 李鹏达 吴泽霖 张耘彪 武泽恺
                 "}"
                 "QCheckBox::indicator:unchecked {"
                 "    background: 3px solid rgb(52, 59, 72);"    
-                "}"
+                "}",
+    "message": """
+    QMessageBox {
+        background-color: #ffffff;
+        border-radius: 2px;
+    }
+    
+    QLabel {
+        color: #333333;
+        font-size: 18px;
+    }
+    
+    QPushButton {
+        background-color: #007bff;
+        color: #ffffff;
+        border-radius: 4px;
+        padding: 8px;
+    }
+    
+    QPushButton:hover {
+        background-color: #0056b3;
+    }
+    """
 }
